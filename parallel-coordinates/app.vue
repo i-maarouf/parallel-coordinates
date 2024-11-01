@@ -2,17 +2,18 @@
   <div>
     <!-- <UHeader /> -->
 
-    <UMain>
-      <NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>
-    </UMain>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
 
-    <UFooter />
+    <!-- <UFooter /> -->
   </div>
 </template>
 <style>
 .modebar-container {
   display: none;
+}
+.fixed {
+  position: relative;
 }
 </style>
