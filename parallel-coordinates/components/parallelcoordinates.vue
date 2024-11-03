@@ -29,7 +29,7 @@ export default {
       layout: {
         title: "Parallel Coordinates Plot",
         width: null,
-        height: 400,
+        height: 600,
         font: {
           color: "#ffffff", // Set color of text, like title and axis labels
           size: 14,
@@ -39,6 +39,7 @@ export default {
       },
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
+      mappedSCV: [],
       selectedKeys: [],
       filterRanges: {}, // Store ranges for each axis
       jsonData: [], // Raw data for filtering
@@ -52,8 +53,8 @@ export default {
       this.Plotly = await import("plotly.js-dist-min");
 
       // Fetch and parse Excel file data
-      const response = await fetch("/Bilmar_Sample_Data.xlsx");
-      // const response = await fetch("/Parallel_Coordinates_Template.xlsx");
+      // const response = await fetch("/Bilmar_Sample_Data.xlsx");
+      const response = await fetch("/Bilmar_Sample_Data copy.xlsx");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -61,15 +62,33 @@ export default {
       const colorKey = "out:Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       // const mappedData = this.mapTextColumnsToNumbers(this.jsonData);
+      const stringColumnName = "out:Premium ($)";
+      const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
+      const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
 
-      // Prepare data for Plotly
-      const dimensions = Object.keys(jsonData[0]).map((key) => ({
-        label: key,
-        values: jsonData.map((row) => row[key]),
-        labelfont: { color: "#ffffff" },
-        tickfont: { color: "#ffffff" },
+      this.mappedSCV = uniqueSCV.map((label, index) => ({
+        label: label,
+        value: index,
       }));
+      console.log("mappedSCV", this.mappedSCV);
 
+      const dimensions = Object.keys(jsonData[0]).map((key) => {
+        const isStringColumn = key === stringColumnName;
+        return {
+          label: key,
+          values: jsonData.map((row) =>
+            isStringColumn ? this.stringToValue(row[key]) : row[key]
+          ),
+          // Only set tickvals and ticktext for the string column
+          ...(isStringColumn && {
+            tickvals: this.mappedSCV.map((item) => item.value),
+            ticktext: this.mappedSCV.map((item) => item.label),
+          }),
+          labelfont: { color: "#ffffff" },
+          tickfont: { color: "#ffffff" },
+        };
+      });
+      console.log("dimensions: ", dimensions);
       this.plotData = [
         {
           type: "parcoords",
@@ -94,12 +113,6 @@ export default {
       // Render plot using Plotly
       this.Plotly.newPlot(myPlot, this.plotData, this.layout);
 
-      // Attach event listener for selecting data
-
-      //   myPlot.on("plotly_hover", (eventData) => {
-      //     console.log(eventData);
-      //     console.log("****");
-      //   });
       myPlot.on("plotly_restyle", (eventData) => {
         console.log("eventData", eventData);
         // if (eventData && eventData[0]) {
@@ -121,26 +134,6 @@ export default {
       window.addEventListener("resize", () => {
         this.Plotly.Plots.resize(myPlot);
       });
-      //   var myPlot = document.getElementById("myDiv"),
-      //     x = [1, 2, 3, 4, 5],
-      //     y = [10, 20, 30, 20, 10],
-      //     data = [
-      //       {
-      //         x: x,
-      //         y: y,
-      //         type: "scatter",
-      //         mode: "markers",
-      //         marker: { size: 20 },
-      //       },
-      //     ],
-      //     layout = { title: "Click on Points" };
-
-      //   this.Plotly.newPlot("myDiv", data, layout);
-
-      //   myPlot.on("plotly_click", (eventData) => {
-      //     console.log(eventData);
-      //     alert("You clicked this Plotly chart!");
-      //   });
     }
   },
   beforeUnmount() {
@@ -164,30 +157,9 @@ export default {
         });
       });
     },
-    mapTextColumnsToNumbers(data) {
-      const mappings = {};
-
-      return data.map((row) => {
-        const mappedRow = { ...row };
-        Object.keys(row).forEach((key) => {
-          if (isNaN(row[key])) {
-            // If the column has text, create or retrieve the mapping
-            if (!mappings[key]) mappings[key] = {};
-            if (!mappings[key][row[key]]) {
-              mappings[key][row[key]] = Object.keys(mappings[key]).length + 1;
-            }
-            mappedRow[key] = mappings[key][row[key]];
-          }
-        });
-        this.mappings = mappings; // Save mappings for tick labels
-        return mappedRow;
-      });
-    },
-    getTickLabels(column) {
-      return Object.keys(this.mappings[column] || {});
-    },
-    getTickValues(column) {
-      return Object.values(this.mappings[column] || {});
+    stringToValue(data) {
+      const mapping = this.mappedSCV.find((item) => item.label === data);
+      return mapping ? mapping.value : null; // Return a fallback if not found
     },
   },
 };
