@@ -1,21 +1,7 @@
 <template>
   <div class="w-full">
     <div id="plotContainer" style="width: 100%; height: 100%"></div>
-
-    <table v-if="selectedData.length > 0" border="1" style="margin-top: 20px">
-      <thead>
-        <tr>
-          <th v-for="(key, index) in selectedKeys" :key="index">{{ key }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td v-for="(value, index) in selectedData[0]" :key="index">
-            {{ value }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <SelectedTable :selectedData="selectedData" />
   </div>
 </template>
 
@@ -40,8 +26,7 @@ export default {
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
-      selectedKeys: [],
-      filterRanges: {}, // Store ranges for each axis
+      selectedRanges: {}, // Track selection ranges for each column
       jsonData: [], // Raw data for filtering
     };
   },
@@ -65,12 +50,12 @@ export default {
       const stringColumnName = "out:Premium ($)";
       const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
       const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
-
+      this.jsonData = jsonData;
+      this.selectedData = jsonData;
       this.mappedSCV = uniqueSCV.map((label, index) => ({
         label: label,
         value: index,
       }));
-      console.log("mappedSCV", this.mappedSCV);
 
       const dimensions = Object.keys(jsonData[0]).map((key) => {
         const isStringColumn = key === stringColumnName;
@@ -88,7 +73,7 @@ export default {
           tickfont: { color: "#ffffff" },
         };
       });
-      console.log("dimensions: ", dimensions);
+
       this.plotData = [
         {
           type: "parcoords",
@@ -115,25 +100,44 @@ export default {
 
       myPlot.on("plotly_restyle", (eventData) => {
         console.log("eventData", eventData);
-        // if (eventData && eventData[0]) {
-        //   Object.keys(eventData[0]).forEach((key) => {
-        //     const match = key.match(/dimensions\[(\d+)\]\.constraintrange/);
-        //     console.log("match", match);
-        //     if (match) {
-        //       const axisIndex = parseInt(match[1], 10);
-        //       const range = eventData[0][key][0];
-        //       this.filterRanges[axisIndex] = range;
-        //     }
-        //   });
+        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
+          /\d+/
+        )[0];
+        console.log("selectedColumnIndex", selectedColumnIndex);
+        const selectedColumn = dimensions[selectedColumnIndex].label;
+        let selectedRange =
+          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
+        if (selectedColumn == "out:Premium ($)") {
+          console.log("selectedRange", Math.round(selectedRange[0][0]));
 
-        //   // Filter data points based on updated ranges
-        //   this.selectedData = this.filterDataByRanges();
-        //   this.selectedKeys = Object.keys(this.jsonData[0]);
-        // }
+          for (let i = 0; i < this.mappedSCV.length; i++) {
+            if (Math.round(selectedRange[0][0]) == this.mappedSCV[i].value) {
+              selectedRange = this.mappedSCV[i].label;
+            }
+          }
+        }
+        console.log("selectedRange", selectedRange);
+
+        if (selectedRange) {
+          if (selectedColumn == "out:Premium ($)") {
+            for (let i = 0; i < this.mappedSCV.length; i++) {
+              if (Math.round(selectedRange[0][0]) == this.mappedSCV[i].value) {
+                selectedRange = this.mappedSCV[i].label;
+              }
+            }
+            this.selectedRanges[selectedColumn] = selectedRange[0];
+          }
+          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
+        } else {
+          delete this.selectedRanges[selectedColumn]; // Remove if no selection
+        }
+
+        // Filter data based on all active selections
+        this.updateSelectedData();
       });
-      window.addEventListener("resize", () => {
-        this.Plotly.Plots.resize(myPlot);
-      });
+      // window.addEventListener("resize", () => {
+      //   this.Plotly.Plots.resize(myPlot);
+      // });
     }
   },
   beforeUnmount() {
@@ -141,22 +145,21 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
-    resizePlot() {
-      this.Plotly.Plots.resize(this.$refs.plotContainer);
-    },
-    filterDataByRanges() {
-      return this.jsonData.filter((row) => {
-        return Object.keys(this.filterRanges).every((axisIndex) => {
-          const range = this.filterRanges[axisIndex];
-          const key = Object.keys(this.jsonData[0])[axisIndex];
-          const value = row[key];
-          // Check if value is within range if range is set
-          return range && range[0] !== null && range[1] !== null
-            ? value >= range[0] && value <= range[1]
-            : true;
+    updateSelectedData() {
+      // Filter the dataset based on the ranges stored in selectedRanges
+
+      this.selectedData = this.jsonData.filter((row) => {
+        return Object.entries(this.selectedRanges).every(([column, range]) => {
+          const value = row[column];
+
+          return value >= range[0] && value <= range[1];
         });
       });
     },
+    resizePlot() {
+      this.Plotly.Plots.resize(this.$refs.plotContainer);
+    },
+
     stringToValue(data) {
       const mapping = this.mappedSCV.find((item) => item.label === data);
       return mapping ? mapping.value : null; // Return a fallback if not found
