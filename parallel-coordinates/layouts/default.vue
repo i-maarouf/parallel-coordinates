@@ -7,7 +7,7 @@
           : 'sideBarContainer lightMode p-1 relative'
       "
     >
-      <div class="p-1">
+      <div class="p-1 imgCont">
         <img src="/ClientLogo.jpeg" width="200px" alt="" srcset="" />
       </div>
       <UDivider />
@@ -83,7 +83,7 @@ const links = [
 
   {
     label: "Favourites",
-    icon: "i-heroicons-user-group",
+    icon: "i-heroicons-star",
     to: "/favourites",
   },
   // {
@@ -109,7 +109,9 @@ const links = [
   display: flex;
   /* padding: 10px; */
 }
-
+.imgCont img {
+  max-width: 170px;
+}
 .lightMode {
   border-right: 1px solid #e3dada;
 }
