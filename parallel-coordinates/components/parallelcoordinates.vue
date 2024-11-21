@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div class="backgroundCont">
     <div id="plotContainer" style="width: 100%; height: 100%"></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
@@ -7,30 +7,38 @@
 
 <script>
 import * as XLSX from "xlsx";
+import { reactive, watch } from "vue";
 
 export default {
+  // props: {
+  //   isDark: Boolean,
+  // },
   data() {
     return {
       plotData: [],
-      layout: {
-        title: "Parallel Coordinates Plot",
-        width: null,
-        height: 600,
-        font: {
-          color: "#ffffff", // Set color of text, like title and axis labels
-          size: 14,
-        },
-        paper_bgcolor: "transparent", // Background color of the entire plot
-        plot_bgcolor: "#333333", // Background color within plot borders
-      },
+      layout: null,
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
+      constraints: {}, // To store active constraints for all columns
+
       selectedRanges: {}, // Track selection ranges for each column
       jsonData: [], // Raw data for filtering
     };
   },
   async mounted() {
+    this.layout = reactive({
+      title: "Parallel Coordinates Plot",
+      width: null,
+      height: 600,
+      font: {
+        color: this.colorMode === "dark" ? "#ffffff" : "#000000", // Initial color based on current mode
+        size: 14,
+      },
+      paper_bgcolor: "transparent", // Background color of the entire plot
+      plot_bgcolor: this.colorMode === "dark" ? "#333333" : "#f0f0f0", // Initial background based on current mode
+    });
+
     if (process.client) {
       var myPlot = document.getElementById("plotContainer");
 
@@ -38,8 +46,8 @@ export default {
       this.Plotly = await import("plotly.js-dist-min");
 
       // Fetch and parse Excel file data
-      // const response = await fetch("/Bilmar_Sample_Data.xlsx");
-      const response = await fetch("/Bilmar_Sample_Data copy.xlsx");
+      const response = await fetch("/Bilmar_Sample_Data.xlsx");
+      // const response = await fetch("Bilmar_Sample_Data copy.xlsx");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -73,6 +81,7 @@ export default {
           tickfont: { color: "#ffffff" },
         };
       });
+      this.dimensionKeys = Object.keys(this.jsonData[0]); // Maps Plotly dimension index to column names
 
       this.plotData = [
         {
@@ -107,37 +116,17 @@ export default {
         const selectedColumn = dimensions[selectedColumnIndex].label;
         let selectedRange =
           eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
-        if (selectedColumn == "out:Premium ($)") {
-          console.log("selectedRange", Math.round(selectedRange[0][0]));
-
-          for (let i = 0; i < this.mappedSCV.length; i++) {
-            if (Math.round(selectedRange[0][0]) == this.mappedSCV[i].value) {
-              selectedRange = this.mappedSCV[i].label;
-            }
-          }
-        }
-        console.log("selectedRange", selectedRange);
+        console.log("SELECTED RANGE", selectedRange);
 
         if (selectedRange) {
-          if (selectedColumn == "out:Premium ($)") {
-            for (let i = 0; i < this.mappedSCV.length; i++) {
-              if (Math.round(selectedRange[0][0]) == this.mappedSCV[i].value) {
-                selectedRange = this.mappedSCV[i].label;
-              }
-            }
-            this.selectedRanges[selectedColumn] = selectedRange[0];
-          }
           this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
         } else {
           delete this.selectedRanges[selectedColumn]; // Remove if no selection
         }
 
         // Filter data based on all active selections
-        this.updateSelectedData();
+        this.updateSelectedData(eventData);
       });
-      // window.addEventListener("resize", () => {
-      //   this.Plotly.Plots.resize(myPlot);
-      // });
     }
   },
   beforeUnmount() {
@@ -145,16 +134,51 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
-    updateSelectedData() {
-      // Filter the dataset based on the ranges stored in selectedRanges
+    updateSelectedData(eventData) {
+      // Parse constraints from the current eventData
+      if (eventData && eventData[0]) {
+        Object.entries(eventData[0]).forEach(([dimension, range]) => {
+          if (range && range[0]) {
+            this.constraints[dimension] = range; // Add/Update constraint for the dimension
+          } else {
+            delete this.constraints[dimension]; // Remove constraint if invalid
+          }
+        });
+      }
 
-      this.selectedData = this.jsonData.filter((row) => {
-        return Object.entries(this.selectedRanges).every(([column, range]) => {
-          const value = row[column];
+      // Process the dataset based on all active constraints
+      const selectedRows = this.jsonData.filter((row) => {
+        return Object.entries(this.constraints).every(([dimension, range]) => {
+          const dimensionIndex = parseInt(
+            dimension.match(/dimensions\[(\d+)\]/)[1],
+            10
+          );
+          const columnName = this.dimensionKeys[dimensionIndex];
+          const value = row[columnName];
 
-          return value >= range[0] && value <= range[1];
+          if (typeof value === "string") {
+            // Map text value and compare
+            const mappedValue = this.mappedSCV.find(
+              (item) => item.label === value
+            )?.value;
+            return (
+              mappedValue !== undefined &&
+              mappedValue >= range[0][0] &&
+              mappedValue <= range[0][1]
+            );
+          } else {
+            // Compare numeric values
+            return value >= range[0][0] && value <= range[0][1];
+          }
         });
       });
+
+      // Update the selected data for the table
+      this.selectedData = selectedRows;
+
+      // // Debugging: Log active constraints and selected rows
+      // console.log("Active Constraints:", this.constraints);
+      // console.log("Selected Rows:", this.selectedData);
     },
     resizePlot() {
       this.Plotly.Plots.resize(this.$refs.plotContainer);
@@ -163,6 +187,22 @@ export default {
     stringToValue(data) {
       const mapping = this.mappedSCV.find((item) => item.label === data);
       return mapping ? mapping.value : null; // Return a fallback if not found
+    },
+  },
+  computed: {
+    colorMode() {
+      // Access the current color mode using the composable
+      return useColorMode().preference;
+    },
+  },
+  watch: {
+    // Watch for changes in the color mode
+    colorMode(newMode) {
+      // Dynamically update layout colors based on the color mode
+      if (this.layout) {
+        this.layout.font.color = newMode === "dark" ? "#ffffff" : "#000000";
+        this.layout.plot_bgcolor = newMode === "dark" ? "#333333" : "#f0f0f0";
+      }
     },
   },
 };
@@ -181,5 +221,8 @@ th,
 td {
   padding: 8px;
   text-align: left;
+}
+.backgroundCont {
+  width: 98%;
 }
 </style>
