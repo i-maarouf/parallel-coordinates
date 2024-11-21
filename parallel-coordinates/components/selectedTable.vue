@@ -1,8 +1,9 @@
 <template>
-  <div class="w-full">
-    <UCard>
+  <div class="p-4">
+    <UCard class="tableCont">
       <UTable
-        :rows="selectedData"
+        :rows="rows"
+        v-model="selected"
         :loading="selectedData ? false : true"
         :loading-state="{
           icon: 'i-heroicons-arrow-path-20-solid',
@@ -15,9 +16,7 @@
           </caption>
         </template>
       </UTable>
-      <div
-        class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700"
-      >
+      <div class="flex justify-end px-3 py-3.5 border-t">
         <UPagination
           v-model="page"
           :page-count="pageCount"
@@ -38,7 +37,8 @@ export default {
   data() {
     return {
       page: 1,
-      pageCount: 5,
+      pageCount: 20,
+      selected: this.selectedData,
     };
   },
   computed: {
@@ -50,3 +50,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+/* .tableCont {
+  background-color: #fafafa;
+} */
+</style>

@@ -13,7 +13,4 @@
 .modebar-container {
   display: none;
 }
-.fixed {
-  position: relative;
-}
 </style>
