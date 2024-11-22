@@ -1,22 +1,25 @@
 <template>
-  <div
-    class="flex flex-col items-center space-x-4 backgroundCont w-full p-8 row"
-  >
-    <UCard class="tableCont w-full">
+  <Loading v-if="this.loading" />
+  <div class="flex flex-col items-center backgroundCont w-full p-8 row">
+    <div class="buttonsContainer items-center flex justify-between w-full">
+      <span class="font-semibold md"> Favourite Paths </span>
       <div class="py-2 justify-self-end">
         <UButton
           icon="i-heroicons-arrow-up-tray"
           size="sm"
           color="primary"
-          variant="soft"
-          :disabled="this.arrayStore.myArray.length > 0 ? false : true"
+          variant="outline"
+          :disabled="arrayStore.myArray.length > 0 ? false : true"
           label="Export as XSLX"
           :trailing="false"
           @click="exportToExcel()"
         />
       </div>
+    </div>
+    <UCard class="tableCont w-full">
       <UTable
         :rows="rows"
+        v-model="selected"
         class="w-full"
         :empty-state="{
           icon: 'i-heroicons-circle-stack-20-solid',
@@ -27,17 +30,24 @@
           label: 'Loading...',
         }"
       >
-        <template #caption>
-          <caption>
-            Favourite Paths
-          </caption>
-        </template>
       </UTable>
-      <div class="flex justify-end px-3 py-3.5 border-t">
+      <div class="flex justify-between px-3 py-3.5 border-t">
+        <div class="py-2 justify-self-start">
+          <UButton
+            icon="i-heroicons-archive-box-x-mark"
+            size="sm"
+            color="primary"
+            variant="outline"
+            :disabled="selected.length > 0 ? false : true"
+            label="Remove from Favourites"
+            :trailing="false"
+            @click="removeFromFavourites()"
+          />
+        </div>
         <UPagination
           v-model="page"
           :page-count="pageCount"
-          :total="this.arrayStore.myArray.length"
+          :total="arrayStore.myArray.length"
         />
       </div>
     </UCard>
@@ -47,21 +57,15 @@
 import { useArrayStore } from "../stores/useArrayStore";
 import * as XLSX from "xlsx";
 
-// Access the store
 export default {
-  // props: {
-  //   selectedData: {
-  //     type: Array,
-  //     required: true,
-  //   },
-  // },
   data() {
     return {
       page: 1,
       arrayStore: useArrayStore(),
       pageCount: 20,
+      loading: false,
       selected: [],
-      selectedData: [],
+
       // favouritesTable: [],
     };
   },
@@ -76,7 +80,29 @@ export default {
     },
   },
   methods: {
+    removeFromFavourites() {
+      this.loading = true;
+      const toast = useToast();
+      const arrayStore = useArrayStore();
+      for (let i = 0; i < this.selected.length; i++) {
+        // console.log("this.selected [" + i + "]", this.selected[i]);
+        // console.log(arrayStore.myArray.includes(this.selected[i]));
+        arrayStore.removeItem(this.selected[i]);
+      }
+
+      window.setTimeout(() => {
+        this.loading = false;
+        toast.add({
+          id: "removed_successfuly",
+          title: "Removed from Favourites",
+          // description: "Data exported to downloads folder.",
+          icon: "i-heroicons-check-circle",
+          timeout: 5000,
+        });
+      }, 1000);
+    },
     exportToExcel() {
+      const toast = useToast();
       const ws = XLSX.utils.json_to_sheet(this.arrayStore.myArray);
 
       // Create a new workbook and append the worksheet
@@ -85,6 +111,13 @@ export default {
 
       // Export the workbook to a file
       XLSX.writeFile(wb, "export.xlsx");
+      toast.add({
+        id: "export_successful",
+        title: "Table exported successfully",
+        // description: "Data exported to downloads folder.",
+        icon: "i-heroicons-check-circle",
+        timeout: 5000,
+      });
     },
   },
 };
@@ -92,5 +125,14 @@ export default {
 <style scoped>
 .backgroundCont {
   min-height: 100vh;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 8px;
+  text-align: left;
 }
 </style>

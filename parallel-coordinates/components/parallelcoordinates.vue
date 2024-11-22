@@ -56,10 +56,10 @@ export default {
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      const colorKey = "out:Elec Peak kW"; // Change "Age" to any other column name if needed
+      const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       // const mappedData = this.mapTextColumnsToNumbers(this.jsonData);
-      const stringColumnName = "out:Premium ($)";
+      const stringColumnName = "Premium ($)";
       const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
       const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
       this.jsonData = jsonData;

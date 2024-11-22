@@ -1,19 +1,22 @@
 <template>
   <Loading v-if="this.loading" />
   <div class="p-4">
-    <UCard class="tableCont">
+    <div class="flex items-center justify-between">
+      <span class="font-semibold md"> Paths Selected </span>
       <div class="py-2 justify-self-end">
         <UButton
           icon="i-heroicons-star"
           size="sm"
           color="yellow"
-          variant="soft"
+          variant="outline"
           :disabled="selected.length > 0 ? false : true"
           label="Add to favourites"
           :trailing="false"
           @click="addToFavourites()"
         />
       </div>
+    </div>
+    <UCard class="tableCont">
       <UTable
         :rows="rows"
         v-model="selected"
@@ -23,11 +26,6 @@
           label: 'Loading...',
         }"
       >
-        <template #caption>
-          <caption>
-            Paths Selected
-          </caption>
-        </template>
       </UTable>
       <div class="flex justify-end px-3 py-3.5 border-t">
         <UPagination
@@ -102,27 +100,27 @@ export default {
           this.loading = true;
           // this.favouritesArr.push(this.selected[i]);
           arrayStore.addItem(this.selected[i]);
-
-          toast.add({
-            id: "added_to_favourites",
-            title: "Added to Favourites.",
-            description: "Navigate to Favourites tab to view them.",
-            icon: "i-heroicons-star",
-            timeout: 5000,
-          });
+          window.setTimeout(() => {
+            this.loading = false;
+            toast.add({
+              id: "added_to_favourites",
+              title: "Added to Favourites",
+              description: "Navigate to Favourites tab to view them",
+              icon: "i-heroicons-star",
+              timeout: 5000,
+            });
+          }, 1000);
         } else {
           toast.add({
             id: "already_exists",
-            title: "Already in Favourites.",
-            description: "The rows selected already exist in your favourites.",
+            title: "Already in Favourites",
+            description: "The rows selected already exist in your favourites",
             icon: "i-heroicons-no-symbol",
             timeout: 5000,
           });
         }
       }
-      window.setTimeout(() => {
-        this.loading = false;
-      }, 1000);
+
       this.selected = [];
     },
   },

@@ -1,4 +1,4 @@
-Roof R-value,Wall R-value,Soffit R-value,Win SHGC,Window U-value,H_Pod_Shade,ERV Efficiency,Global WWR,out:EUI (kWh/m2),out:TEDI (kWh/m2),out:CEDI (kWh/m2),out:SolarGain,out:Elec Peak kW,out:EnCost ($/m2),out:EnCst Savings (%),out:SPP,out:Premium ($)
+Roof R-value,Wall R-value,Soffit R-value,Win SHGC,Window U-value,H_Pod_Shade,ERV Efficiency,Global WWR,EUI (kWh/m2),TEDI (kWh/m2),CEDI (kWh/m2),SolarGain,Elec Peak kW,EnCost ($/m2),EnCst Savings (%),SPP,Premium ($)
 30,24,24,0.3,0.36,0,0.75,0.42,73.9,34.4,47.1,79,308.1,12.22701458,48%,0,$0
 30,24,24,0.4,0.36,0,0.75,0.42,74.1,32,50.4,65,321.7,12.25036152,48%,24.29989636,$0
 30,24,24,0.3,0.36,0,0.75,0.38,73.2,33,45.1,72,301,12.10900182,49%,16.90386546,$0
