@@ -27,9 +27,13 @@ export default {
     };
   },
   async mounted() {
+    window.addEventListener("resize", this.resizePlot);
+
     this.layout = reactive({
       title: "Parallel Coordinates Plot",
       width: null,
+      autosize: true, // Makes the chart adjust to container size
+      responsive: true, // Enables responsive behavior
       height: 600,
       font: {
         color: this.colorMode === "dark" ? "#ffffff" : "#000000", // Initial color based on current mode
@@ -181,7 +185,7 @@ export default {
       // console.log("Selected Rows:", this.selectedData);
     },
     resizePlot() {
-      this.Plotly.Plots.resize(this.$refs.plotContainer);
+      this.Plotly.Plots.resize("plotContainer");
     },
 
     stringToValue(data) {
