@@ -4,7 +4,7 @@
     class="flex flex-col items-center backgroundCont w-full p-8 row overflow-y-auto"
   >
     <div class="buttonsContainer items-center flex justify-between w-full">
-      <span class="font-semibold md"> Favourite Paths </span>
+      <span class="font-semibold md"> Favourited Scenarios </span>
       <div class="py-2 justify-self-end">
         <UButton
           icon="i-heroicons-arrow-up-tray"
