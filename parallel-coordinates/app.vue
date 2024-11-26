@@ -16,13 +16,15 @@
               <h3
                 class="text-base font-semibold leading-6 text-gray-900 dark:text-white"
               >
-                Modal
+                NOTE
               </h3>
             </div>
           </template>
           <div class="flex flex-col items-center justify-center gap-4">
-            <div class="text-md">
-              Please note that this dashboard is for demo purposes only.
+            <div class="text-md align-center">
+              This version of the app is for demonstration purposes only for the
+              GEF RFP. True data will be generated uniquely for each building if
+              the project is awarded.
             </div>
 
             <UButton

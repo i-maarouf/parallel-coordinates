@@ -10,9 +10,6 @@ import * as XLSX from "xlsx";
 import { reactive, watch } from "vue";
 
 export default {
-  // props: {
-  //   isDark: Boolean,
-  // },
   data() {
     return {
       plotData: [],
@@ -20,6 +17,8 @@ export default {
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
+      // mappedSCV2: [],
+      // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
 
       selectedRanges: {}, // Track selection ranges for each column
@@ -30,7 +29,7 @@ export default {
     window.addEventListener("resize", this.resizePlot);
 
     this.layout = reactive({
-      title: "Parallel Coordinates Plot",
+      title: "GEF Retrofit Decision Making Workshop",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
@@ -50,24 +49,43 @@ export default {
       this.Plotly = await import("plotly.js-dist-min");
 
       // Fetch and parse Excel file data
-      const response = await fetch("/Bilmar_Sample_Data.xlsx");
-      // const response = await fetch("Bilmar_Sample_Data copy.xlsx");
+      // const response = await fetch("/Bilmar_Sample_Data.xlsx");
+      const response = await fetch("gefdatacost2.xlsx");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
-      const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
+      // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
+      const colorKey = "EUI Savings %"; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       // const mappedData = this.mapTextColumnsToNumbers(this.jsonData);
-      const stringColumnName = "Premium ($)";
+
+      // const stringColumnName = "Premium ($)";
+      // const stringColumnName = "SOG R-Value";
+      const stringColumnName = "HVAC";
+      // const stringColumnName3 = "CMHC MLI";
       const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
+      // const stringColumnValues2 = jsonData.map((row) => row[stringColumnName2]);
+      // const stringColumnValues3 = jsonData.map((row) => row[stringColumnName3]);
       const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
+      // const uniqueSCV2 = Array.from(new Set(stringColumnValues2)); // Get unique values
+      // const uniqueSCV3 = Array.from(new Set(stringColumnValues3)); // Get unique values
       this.jsonData = jsonData;
       this.selectedData = jsonData;
       this.mappedSCV = uniqueSCV.map((label, index) => ({
         label: label,
         value: index,
       }));
+      console.log("mappedSCV", this.mappedSCV);
+
+      // this.mappedSCV2 = uniqueSCV2.map((label, index) => ({
+      //   label: label,
+      //   value: index,
+      // }));
+      // this.mappedSCV3 = uniqueSCV3.map((label, index) => ({
+      //   label: label,
+      //   value: index,
+      // }));
 
       const dimensions = Object.keys(jsonData[0]).map((key) => {
         const isStringColumn = key === stringColumnName;
@@ -142,6 +160,8 @@ export default {
       // Parse constraints from the current eventData
       if (eventData && eventData[0]) {
         Object.entries(eventData[0]).forEach(([dimension, range]) => {
+          console.log("range", range);
+
           if (range && range[0]) {
             this.constraints[dimension] = range; // Add/Update constraint for the dimension
           } else {
@@ -159,8 +179,12 @@ export default {
           );
           const columnName = this.dimensionKeys[dimensionIndex];
           const value = row[columnName];
+          console.log("value", value);
+          console.log("type of value", typeof value);
 
           if (typeof value === "string") {
+            // console.log("value", value);
+
             // Map text value and compare
             const mappedValue = this.mappedSCV.find(
               (item) => item.label === value
@@ -171,11 +195,14 @@ export default {
               mappedValue <= range[0][1]
             );
           } else {
+            // console.log("value", value);
+
             // Compare numeric values
             return value >= range[0][0] && value <= range[0][1];
           }
         });
       });
+      console.log("selectedRows", selectedRows);
 
       // Update the selected data for the table
       this.selectedData = selectedRows;

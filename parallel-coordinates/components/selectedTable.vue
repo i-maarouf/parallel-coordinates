@@ -2,7 +2,7 @@
   <Loading v-if="this.loading" />
   <div class="py-4">
     <div class="flex items-center justify-between">
-      <span class="font-semibold md"> Paths Selected </span>
+      <span class="font-semibold md"> Scenarios Selected </span>
       <div class="py-2 justify-self-end">
         <UButton
           icon="i-heroicons-star"
