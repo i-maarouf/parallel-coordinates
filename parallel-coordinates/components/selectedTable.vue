@@ -1,6 +1,6 @@
 <template>
   <Loading v-if="this.loading" />
-  <div class="p-4">
+  <div class="py-4">
     <div class="flex items-center justify-between">
       <span class="font-semibold md"> Paths Selected </span>
       <div class="py-2 justify-self-end">
@@ -26,6 +26,13 @@
           label: 'Loading...',
         }"
       >
+        <!-- <template #select-data="{ checked, change }">
+          <input
+            type="checkbox"
+            :checked="checked"
+            @change="(e) => change(e.target.checked)"
+          />
+        </template> -->
       </UTable>
       <div class="flex justify-end px-3 py-3.5 border-t">
         <UPagination
@@ -75,32 +82,66 @@ export default {
 
       // Check if the number of properties is the same
       if (keys1.length !== keys2.length) return false;
+      const check = keys1.every((key) => obj1[key] === obj2[key]);
 
       // Check if all values are equal
       return keys1.every((key) => obj1[key] === obj2[key]);
     },
     async addToFavourites() {
-      // const arrayStore = useArrayStore();
       const toast = useToast();
       const arrayStore = useArrayStore();
+      let existFlag = false;
+      let notExistsFlag = false;
+      arrayStore.myArray.length == 0
+        ? this.selected.forEach((obj1) => {
+            this.loading = true;
+            arrayStore.addItem(obj1);
+            window.setTimeout(() => {
+              this.loading = false;
+              toast.add({
+                id: "added_to_favourites",
+                title: "Added to Favourites",
+                description: "Navigate to Favourites tab to view them",
+                icon: "i-heroicons-star",
+                timeout: 5000,
+              });
+            }, 1000);
+          })
+        : this.selected.forEach((obj1) => {
+            const keys1 = Object.keys(obj1);
+            const exists = arrayStore.myArray.some((obj2) => {
+              return keys1.every((key) => obj1[key] === obj2[key]);
+            });
+            if (!exists) {
+              this.loading = true;
+              arrayStore.addItem(obj1);
+              notExistsFlag = true;
+            } else {
+              existFlag = true;
+            }
+          });
 
-      const exists = this.selected.some((obj1) =>
-        arrayStore.myArray.some((obj2) => this.areObjectsEqual(obj1, obj2))
-      );
-      // this.favouritesArr = arrayStore.myArray;
-      // console.log("selected", this.selected);
-      // console.log("arrayStore", arrayStore.myArray);
-      // console.log("arrayStore", this.arrayStore.myArray);
-
-      for (let i = 0; i < this.selected.length; i++) {
-        console.log("this.selected [" + i + "]", this.selected[i]);
-        console.log(arrayStore.myArray.includes(this.selected[i]));
-
-        if (!exists) {
-          this.loading = true;
-          // this.favouritesArr.push(this.selected[i]);
-          arrayStore.addItem(this.selected[i]);
-          window.setTimeout(() => {
+      existFlag && notExistsFlag
+        ? window.setTimeout(() => {
+            this.loading = false;
+            toast.add({
+              id: "some_exists",
+              title: "Added to Favourites",
+              description:
+                "Some of the rows selected already exist in your favourites, the rest have been added.",
+              icon: "i-heroicons-star",
+              timeout: 5000,
+            });
+          }, 1000)
+        : existFlag && !notExistsFlag
+        ? toast.add({
+            id: "already_exists",
+            title: "Already in Favourites",
+            description: "The rows selected already exist in your favourites",
+            icon: "i-heroicons-no-symbol",
+            timeout: 5000,
+          })
+        : window.setTimeout(() => {
             this.loading = false;
             toast.add({
               id: "added_to_favourites",
@@ -110,17 +151,6 @@ export default {
               timeout: 5000,
             });
           }, 1000);
-        } else {
-          toast.add({
-            id: "already_exists",
-            title: "Already in Favourites",
-            description: "The rows selected already exist in your favourites",
-            icon: "i-heroicons-no-symbol",
-            timeout: 5000,
-          });
-        }
-      }
-
       this.selected = [];
     },
   },

@@ -3,40 +3,22 @@
     <UPage>
       <template #left>
         <UAside :links="links">
-          <!-- <UNavigationTree :links="links" /> -->
-          <template #panel>
-            <div class="p-2">
-              <ClientOnly>
-                <UButton
-                  :icon="
-                    !isDark
-                      ? 'i-heroicons-moon-20-solid'
-                      : 'i-heroicons-sun-20-solid'
-                  "
-                  color="gray"
-                  variant="ghost"
-                  :label="isDark ? 'Light Mode' : 'Dark Mode'"
-                  aria-label="Theme"
-                  @click="isDark = !isDark"
-                />
-                <template #fallback>
-                  <div class="w-8 h-8" />
-                </template>
-              </ClientOnly>
+          <template #top>
+            <div class="p-1 imgCont">
+              <img src="/ClientLogo.jpeg" width="200px" alt="" srcset="" />
             </div>
+          </template>
+
+          <template #bottom>
+            <UDivider type="dashed" class="my-6" />
+
+            <UPageLinks :links="pageLinks" />
           </template>
         </UAside>
       </template>
-
-      <template #bottom>
-        <UDivider type="dashed" class="my-6" />
-
-        <UPageLinks :links="pageLinks" />
-      </template>
-
-      <slot />
     </UPage>
   </UContainer>
+  <slot />
 </template>
 <script setup lang="ts">
 const colorMode = useColorMode();
@@ -55,19 +37,9 @@ const links = [
     to: "/",
   },
   {
-    label: "Playground",
-    icon: "i-simple-icons-stackblitz",
-    // to: "/playground",
-  },
-  {
-    label: "Roadmap",
-    icon: "i-heroicons-map",
-    // to: "/roadmap",
-  },
-  {
-    label: "Pro",
-    icon: "i-heroicons-square-3-stack-3d",
-    // to: "/pro",
+    label: "Favourites",
+    icon: "i-heroicons-star",
+    to: "/favourites",
   },
 ];
 

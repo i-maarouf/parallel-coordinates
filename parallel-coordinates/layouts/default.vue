@@ -1,5 +1,5 @@
 <template>
-  <div class="mainContainer">
+  <div class="mainContainer w-full">
     <div
       :class="
         isDark
@@ -14,9 +14,7 @@
 
       <UVerticalNavigation :links="links" class="linksContainer p-1">
         <template #default="{ link }">
-          <span class="group-hover:text-primary relative">{{
-            link.label
-          }}</span>
+          <span class="relative">{{ link.label }}</span>
         </template>
       </UVerticalNavigation>
       <!-- 

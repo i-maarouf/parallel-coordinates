@@ -1,6 +1,8 @@
 <template>
   <Loading v-if="this.loading" />
-  <div class="flex flex-col items-center backgroundCont w-full p-8 row">
+  <div
+    class="flex flex-col items-center backgroundCont w-full p-8 row overflow-y-auto"
+  >
     <div class="buttonsContainer items-center flex justify-between w-full">
       <span class="font-semibold md"> Favourite Paths </span>
       <div class="py-2 justify-self-end">
@@ -36,10 +38,10 @@
           <UButton
             icon="i-heroicons-archive-box-x-mark"
             size="sm"
-            color="primary"
-            variant="outline"
+            color="red"
+            variant="soft"
             :disabled="selected.length > 0 ? false : true"
-            label="Remove from Favourites"
+            label="Remove"
             :trailing="false"
             @click="removeFromFavourites()"
           />
@@ -100,6 +102,7 @@ export default {
           timeout: 5000,
         });
       }, 1000);
+      this.selected = [];
     },
     exportToExcel() {
       const toast = useToast();
