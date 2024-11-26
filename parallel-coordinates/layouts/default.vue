@@ -85,9 +85,9 @@ const links = [
     to: "/favourites",
   },
   // {
-  //   label: "Settings",
+  //   label: "3D Model",
   //   icon: "i-heroicons-cog-8-tooth",
-  //   darkMode: true,
+  //   to: "/3dmodel",
   // },
 ];
 </script>

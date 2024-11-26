@@ -63,15 +63,24 @@ export default {
       favouritesArr: [],
     };
   },
-  mounted() {
-    const arrayStore = useArrayStore();
-    console.log("arrayStore", arrayStore.myArray);
-  },
+  mounted() {},
   computed: {
+    formattedData() {
+      const formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0, // Adjust this if decimals are needed
+      });
+      return this.selectedData.map((item) => ({
+        ...item,
+        "Premium $": formatter.format(item["Premium $"]),
+      }));
+    },
     rows() {
       const start = (this.page - 1) * this.pageCount;
+
       const end = start + this.pageCount;
-      return this.selectedData.slice(start, end);
+      return this.formattedData.slice(start, end);
     },
   },
 
