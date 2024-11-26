@@ -111,10 +111,12 @@ export default {
           line: {
             color: colorValues, // Set color to array of values from the selected column
             colorscale: "Jet", // Choose a color scale, e.g., Viridis, Jet, etc.
-            cmin: Math.min(...colorValues), // Minimum value for color scaling
-            cmax: Math.max(...colorValues), // Maximum value for color scaling
+            // showscale: true,
+            // cmin: Math.min(...colorValues), // Minimum value for color scaling
+            // cmax: Math.max(...colorValues), // Maximum value for color scaling
             width: 5,
           },
+
           selected: {
             line: {
               color: "red", // Color of lines when selected
@@ -160,7 +162,7 @@ export default {
       // Parse constraints from the current eventData
       if (eventData && eventData[0]) {
         Object.entries(eventData[0]).forEach(([dimension, range]) => {
-          console.log("range", range);
+          // console.log("range", range);
 
           if (range && range[0]) {
             this.constraints[dimension] = range; // Add/Update constraint for the dimension
@@ -179,8 +181,8 @@ export default {
           );
           const columnName = this.dimensionKeys[dimensionIndex];
           const value = row[columnName];
-          console.log("value", value);
-          console.log("type of value", typeof value);
+          // console.log("value", value);
+          // console.log("type of value", typeof value);
 
           if (typeof value === "string") {
             // console.log("value", value);
@@ -202,7 +204,7 @@ export default {
           }
         });
       });
-      console.log("selectedRows", selectedRows);
+      // console.log("selectedRows", selectedRows);
 
       // Update the selected data for the table
       this.selectedData = selectedRows;
@@ -255,5 +257,12 @@ td {
 }
 .backgroundCont {
   width: 98%;
+}
+</style>
+<style>
+line.highlight {
+  stroke-width: 20 !important;
+  opacity: 0.2 !important;
+  stroke: black !important;
 }
 </style>
