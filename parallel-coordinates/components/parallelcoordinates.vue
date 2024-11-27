@@ -1,5 +1,14 @@
 <template>
-  <div class="backgroundCont">
+  <div class="backgroundCont flex flex-col">
+    <UButton
+      icon="i-heroicons-arrow-path"
+      size="sm"
+      color="primary"
+      variant="outline"
+      class="flex self-end"
+      label="Reset Filters"
+      @click="resetPlot()"
+    />
     <div id="plotContainer" style="width: 100%; height: 100%"></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
@@ -20,7 +29,7 @@ export default {
       // mappedSCV2: [],
       // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
-
+      mappedColumns: {},
       selectedRanges: {}, // Track selection ranges for each column
       jsonData: [], // Raw data for filtering
     };
@@ -50,7 +59,8 @@ export default {
 
       // Fetch and parse Excel file data
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
-      const response = await fetch("gefdatacost2.xlsx");
+      // const response = await fetch("gefdatacost2.xlsx");
+      const response = await fetch("gefdatacostFinal.xlsx");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -62,22 +72,24 @@ export default {
 
       // const stringColumnName = "Premium ($)";
       // const stringColumnName = "SOG R-Value";
-      const stringColumnName = "HVAC";
+      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+
+      // const stringColumnName = "HVAC";
       // const stringColumnName3 = "CMHC MLI";
-      const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
+      // const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
       // const stringColumnValues2 = jsonData.map((row) => row[stringColumnName2]);
       // const stringColumnValues3 = jsonData.map((row) => row[stringColumnName3]);
-      const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
+      // const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
       // const uniqueSCV2 = Array.from(new Set(stringColumnValues2)); // Get unique values
       // const uniqueSCV3 = Array.from(new Set(stringColumnValues3)); // Get unique values
       this.jsonData = jsonData;
       this.selectedData = jsonData;
-      this.mappedSCV = uniqueSCV.map((label, index) => ({
-        label: label,
-        value: index,
-      }));
-      console.log("mappedSCV", this.mappedSCV);
-
+      // this.mappedSCV = uniqueSCV.map((label, index) => ({
+      //   label: label,
+      //   value: index,
+      // }));
+      // console.log("mappedSCV", this.mappedSCV);
+      this.generateMappings(columnsWithStrings);
       // this.mappedSCV2 = uniqueSCV2.map((label, index) => ({
       //   label: label,
       //   value: index,
@@ -87,22 +99,22 @@ export default {
       //   value: index,
       // }));
 
-      const dimensions = Object.keys(jsonData[0]).map((key) => {
-        const isStringColumn = key === stringColumnName;
+      const dimensions = Object.keys(this.jsonData[0]).map((key) => {
+        const isStringColumn = columnsWithStrings.includes(key);
         return {
           label: key,
-          values: jsonData.map((row) =>
-            isStringColumn ? this.stringToValue(row[key]) : row[key]
+          values: this.jsonData.map((row) =>
+            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
           ),
-          // Only set tickvals and ticktext for the string column
           ...(isStringColumn && {
-            tickvals: this.mappedSCV.map((item) => item.value),
-            ticktext: this.mappedSCV.map((item) => item.label),
+            tickvals: this.mappedColumns[key].map((item) => item.value),
+            ticktext: this.mappedColumns[key].map((item) => item.label),
           }),
           labelfont: { color: "#ffffff" },
           tickfont: { color: "#ffffff" },
         };
       });
+
       this.dimensionKeys = Object.keys(this.jsonData[0]); // Maps Plotly dimension index to column names
 
       this.plotData = [
@@ -115,13 +127,6 @@ export default {
             // cmin: Math.min(...colorValues), // Minimum value for color scaling
             // cmax: Math.max(...colorValues), // Maximum value for color scaling
             width: 5,
-          },
-
-          selected: {
-            line: {
-              color: "red", // Color of lines when selected
-              width: 3, // Thickness of selected lines
-            },
           },
           dimensions: dimensions,
           customdata: jsonData, // Store the entire jsonData for later access
@@ -162,8 +167,6 @@ export default {
       // Parse constraints from the current eventData
       if (eventData && eventData[0]) {
         Object.entries(eventData[0]).forEach(([dimension, range]) => {
-          // console.log("range", range);
-
           if (range && range[0]) {
             this.constraints[dimension] = range; // Add/Update constraint for the dimension
           } else {
@@ -181,45 +184,176 @@ export default {
           );
           const columnName = this.dimensionKeys[dimensionIndex];
           const value = row[columnName];
-          // console.log("value", value);
-          // console.log("type of value", typeof value);
 
-          if (typeof value === "string") {
-            // console.log("value", value);
-
-            // Map text value and compare
-            const mappedValue = this.mappedSCV.find(
+          if (this.mappedColumns[columnName]) {
+            // Handle string columns
+            const mappedValue = this.mappedColumns[columnName].find(
               (item) => item.label === value
             )?.value;
+
             return (
               mappedValue !== undefined &&
               mappedValue >= range[0][0] &&
               mappedValue <= range[0][1]
             );
-          } else {
-            // console.log("value", value);
-
-            // Compare numeric values
+          } else if (typeof value === "number") {
+            // Handle numeric columns
             return value >= range[0][0] && value <= range[0][1];
+          } else {
+            // Handle unexpected cases
+            return false;
           }
         });
       });
-      // console.log("selectedRows", selectedRows);
 
       // Update the selected data for the table
       this.selectedData = selectedRows;
 
-      // // Debugging: Log active constraints and selected rows
+      // Debugging: Log active constraints and selected rows
       // console.log("Active Constraints:", this.constraints);
       // console.log("Selected Rows:", this.selectedData);
     },
+    // updateSelectedData(eventData) {
+    //   // Parse constraints from the current eventData
+    //   if (eventData && eventData[0]) {
+    //     Object.entries(eventData[0]).forEach(([dimension, range]) => {
+    //       // console.log("range", range);
+
+    //       if (range && range[0]) {
+    //         this.constraints[dimension] = range; // Add/Update constraint for the dimension
+    //       } else {
+    //         delete this.constraints[dimension]; // Remove constraint if invalid
+    //       }
+    //     });
+    //   }
+
+    //   // Process the dataset based on all active constraints
+    //   const selectedRows = this.jsonData.filter((row) => {
+    //     return Object.entries(this.constraints).every(([dimension, range]) => {
+    //       const dimensionIndex = parseInt(
+    //         dimension.match(/dimensions\[(\d+)\]/)[1],
+    //         10
+    //       );
+    //       const columnName = this.dimensionKeys[dimensionIndex];
+    //       const value = row[columnName];
+    //       // console.log("value", value);
+    //       // console.log("type of value", typeof value);
+
+    //       if (typeof value === "string") {
+    //         // console.log("value", value);
+
+    //         // Map text value and compare
+    //         const mappedValue = this.mappedSCV.find(
+    //           (item) => item.label === value
+    //         )?.value;
+    //         return (
+    //           mappedValue !== undefined &&
+    //           mappedValue >= range[0][0] &&
+    //           mappedValue <= range[0][1]
+    //         );
+    //       } else {
+    //         // console.log("value", value);
+
+    //         // Compare numeric values
+    //         return value >= range[0][0] && value <= range[0][1];
+    //       }
+    //     });
+    //   });
+    //   // console.log("selectedRows", selectedRows);
+
+    //   // Update the selected data for the table
+    //   this.selectedData = selectedRows;
+
+    //   // // Debugging: Log active constraints and selected rows
+    //   // console.log("Active Constraints:", this.constraints);
+    //   // console.log("Selected Rows:", this.selectedData);
+    // },
     resizePlot() {
       this.Plotly.Plots.resize("plotContainer");
     },
 
-    stringToValue(data) {
-      const mapping = this.mappedSCV.find((item) => item.label === data);
-      return mapping ? mapping.value : null; // Return a fallback if not found
+    stringToValue(columnName, data) {
+      const mapping = this.mappedColumns[columnName]?.find(
+        (item) => item.label === data
+      );
+      return mapping ? mapping.value : null; // Return fallback if not found
+    },
+    generateMappings(columnsWithStrings) {
+      this.mappedColumns = {};
+
+      columnsWithStrings.forEach((column) => {
+        const uniqueValues = Array.from(
+          new Set(this.jsonData.map((row) => row[column]))
+        );
+        this.mappedColumns[column] = uniqueValues.map((label, index) => ({
+          label: label,
+          value: index,
+        }));
+      });
+    },
+    // Method to reset the parallel coordinates plot
+    resetPlot() {
+      const myPlot = document.getElementById("plotContainer");
+      this.selectedData = this.jsonData;
+      this.selectedRanges = {};
+      this.constraints = {};
+      // Purge the existing graph
+      this.Plotly.purge(myPlot);
+      const stringColumnName = "HVAC";
+      // Prepare fresh data and layout
+      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+      this.generateMappings(columnsWithStrings);
+      const freshDimensions = Object.keys(this.jsonData[0]).map((key) => {
+        const isStringColumn = columnsWithStrings.includes(key);
+        return {
+          label: key,
+          values: this.jsonData.map((row) =>
+            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
+          ),
+          ...(isStringColumn && {
+            tickvals: this.mappedColumns[key].map((item) => item.value),
+            ticktext: this.mappedColumns[key].map((item) => item.label),
+          }),
+          labelfont: { color: "#ffffff" },
+          tickfont: { color: "#ffffff" },
+        };
+      });
+
+      const freshPlotData = [
+        {
+          type: "parcoords",
+          line: {
+            color: this.jsonData.map((row) => row["EUI Savings %"]),
+            colorscale: "Jet",
+            width: 5,
+          },
+          dimensions: freshDimensions,
+          customdata: this.jsonData,
+        },
+      ];
+
+      // Reinitialize the plot
+      this.Plotly.newPlot(myPlot, freshPlotData, this.layout);
+      myPlot.on("plotly_restyle", (eventData) => {
+        console.log("eventData", eventData);
+        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
+          /\d+/
+        )[0];
+        console.log("selectedColumnIndex", selectedColumnIndex);
+        const selectedColumn = freshDimensions[selectedColumnIndex].label;
+        let selectedRange =
+          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
+        console.log("SELECTED RANGE", selectedRange);
+
+        if (selectedRange) {
+          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
+        } else {
+          delete this.selectedRanges[selectedColumn]; // Remove if no selection
+        }
+
+        // Filter data based on all active selections
+        this.updateSelectedData(eventData);
+      });
     },
   },
   computed: {
