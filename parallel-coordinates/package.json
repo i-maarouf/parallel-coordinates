@@ -13,7 +13,7 @@
     "vue": "latest"
   },
   "dependencies": {
-    "@nuxt/ui": "^2.18.7",
+    "@nuxt/ui": "^2.19.2",
     "@nuxt/ui-pro": "^1.4.4",
     "@nuxthub/core": "^0.8.7",
     "@pinia/nuxt": "^0.7.0",

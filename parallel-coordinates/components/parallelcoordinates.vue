@@ -42,7 +42,7 @@ export default {
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
-      height: 600,
+      height: 550,
       font: {
         color: this.colorMode === "dark" ? "#ffffff" : "#000000", // Initial color based on current mode
         size: 14,

@@ -1,6 +1,6 @@
 <template>
   <Loading v-if="this.loading" />
-  <div class="py-4">
+  <div class="">
     <div class="flex items-center justify-between">
       <span class="font-semibold md"> Scenarios Selected </span>
       <div class="py-2 justify-self-end">
@@ -165,8 +165,12 @@ export default {
   },
 };
 </script>
-<style scoped>
-/* .tableCont {
-  background-color: #fafafa;
+<style>
+.tableCont td {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+/* tr:nth-child(even) {
+  background-color: #80808012;
 } */
 </style>

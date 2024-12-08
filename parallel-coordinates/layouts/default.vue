@@ -76,7 +76,7 @@ const links = [
   {
     label: "Home",
     icon: "i-heroicons-home",
-    to: "/",
+    to: "/pathfinder",
   },
 
   {

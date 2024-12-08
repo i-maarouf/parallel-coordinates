@@ -1,7 +1,7 @@
 <template>
   <Loading v-if="this.loading" />
   <div
-    class="flex flex-col items-center backgroundCont w-full p-8 row overflow-y-auto"
+    class="flex flex-col items-center backgroundCont w-full py-32 px-5 row overflow-y-auto"
   >
     <div class="buttonsContainer items-center flex justify-between w-full">
       <span class="font-semibold md"> Favourited Scenarios </span>
@@ -58,7 +58,9 @@
 <script>
 import { useArrayStore } from "../stores/useArrayStore";
 import * as XLSX from "xlsx";
-
+definePageMeta({
+  layout: "dashboard layout",
+});
 export default {
   data() {
     return {
