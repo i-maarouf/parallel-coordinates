@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to Alberta Housing Pathfinder Tool
+          Welcome to (ENBIX) ONLINE PARAMETRIC ENERGY MODELLING TOOL
         </div>
         <div class="text-md text-center">
           Before exploring our tool, please select from different types of
@@ -78,7 +78,7 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Single Family + Garage</div>
+                  <div class="text-center">Single Family + d-Garage</div>
                   <img src="../public/SngFam+Grg.jpeg" alt="" />
                 </div>
               </UCard>
@@ -89,7 +89,7 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Single Family + d-Garage</div>
+                  <div class="text-center">Single Family + Garage</div>
                   <img src="../public/SngFam+dG.jpeg" alt="" />
                 </div>
               </UCard>
@@ -121,7 +121,7 @@
           <div class="step2Q flex items-center gap-6" v-if="stepper == 2">
             <UFormGroup label="Climate City" name="climateCity" class="w-1/4">
               <UInputMenu
-                v-model="houseSelected"
+                v-model="climateCity"
                 size="md"
                 variant="outline"
                 color="primary"
@@ -130,7 +130,14 @@
               <!-- <UInput v-model="climateZone" variant="outline" /> -->
             </UFormGroup>
             <UFormGroup label="Climate Zone" name="climateZone" class="w-1/4">
-              <UInput v-model="climateZone" variant="outline" />
+              <UInput v-model="climateZone" variant="outline" disabled />
+            </UFormGroup>
+            <UFormGroup
+              label="HDD (Heating Degree Days)"
+              name="HDD"
+              class="w-1/4"
+            >
+              <UInput v-model="HDD" variant="outline" disabled />
             </UFormGroup>
           </div>
           <div class="step3Q flex items-center gap-6" v-if="stepper == 3">
@@ -144,7 +151,7 @@
                 class="w-1/4"
               /> -->
             </UFormGroup>
-            <UFormGroup label="Unit" name="unit" class="w-1/8">
+            <UFormGroup label="Unit" name="unit" class="w-1/4">
               <UInputMenu
                 v-model="areaUnit"
                 size="md"
@@ -196,16 +203,38 @@ export default {
       housingSelected: 0,
       isOpen: true,
       stepper: 1,
-      houseSelected: null,
-      climateZone: null,
-      area: null,
-      areaUnit: null,
-      units: ["SF"],
+
+      climateZone: "7A",
+      climateCity: "Calgary",
+      area: 1200,
+      areaUnit: "SF",
+      HDD: null,
+
+      units: ["SF", "MS"],
       locations: ["Calgary", "Edmonton"],
       // selected:false,
     };
   },
+  mounted() {
+    this.checkClimateCity();
+  },
+  watch: {
+    climateCity() {
+      this.climateCity == "Calgary"
+        ? (this.HDD = 5000)
+        : this.climateCity == "Edmonton"
+        ? (this.HDD = 5120)
+        : null;
+    },
+  },
   methods: {
+    checkClimateCity() {
+      this.climateCity == "Calgary"
+        ? (this.HDD = 5000)
+        : this.climateCity == "Edmonton"
+        ? (this.HDD = 5120)
+        : null;
+    },
     houseSelect(number) {
       this.housingSelected = number;
       // this.selected=true;
@@ -226,7 +255,11 @@ export default {
           return true;
         } else return false;
       } else if (this.stepper == 2) {
-        if (this.climateZone && this.houseSelected != null) {
+        if (
+          this.climateZone != null &&
+          this.climateCity != null &&
+          this.HDD != null
+        ) {
           return false;
         } else return true;
       } else if (this.stepper == 3) {
@@ -258,7 +291,7 @@ body {
   border-radius: 5%;
   height: 170px;
   width: 200px;
-  /* object-fit: contain; */
+  object-fit: cover;
 }
 
 .housing:hover {

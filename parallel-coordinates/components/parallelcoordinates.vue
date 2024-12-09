@@ -7,7 +7,7 @@
         color="primary"
         variant="outline"
         class="flex self-end"
-        label="Filters"
+        label="Choose Default Values"
         @click="isOpen = true"
       />
       <UButton
@@ -49,6 +49,22 @@
             <UInput v-model="GHG2" type="number" disabled />
           </UFormGroup>
         </div>
+        <div class="grid grid-cols-2">
+          <UFormGroup label="Plot Color" class="p-2" name="GHG">
+            <UInputMenu
+              v-model="plotColor"
+              :options="plotColors"
+              @change="updatePlotColor()"
+            />
+          </UFormGroup>
+          <UFormGroup label="Colour by Axis" class="p-2" name="GHG2">
+            <UInputMenu
+              v-model="plotAxis"
+              :options="plotAxes"
+              @change="updatePlotColor()"
+            />
+          </UFormGroup>
+        </div>
         <UFormGroup label="Walls" class="p-2" name="walls">
           <URange :min="0" :max="100" v-model="wallRValue" disabled />
         </UFormGroup>
@@ -58,7 +74,7 @@
             size="sm"
             color="primary"
             variant="solid"
-            label="Apply Filters"
+            label="Apply Changes"
             :trailing="true"
             block
             @click="isOpen = false"
@@ -88,7 +104,18 @@ export default {
       energy: 25,
       GHG: 12,
       GHG2: 6,
+      plotColor: "Jet",
       wallRValue: 10,
+      plotAxis: "EUI Savings %",
+      plotColors: ["Jet", "Yellow Or Red", "Portland", "Hot", "Bluered"],
+      plotAxes: [
+        "EUI Savings %",
+        "EUI (kWh/m2)",
+        "GHG Savings %",
+        "GHGI (kg/m2)",
+        "Peak kWe",
+        "Premium $",
+      ],
       // mappedSCV2: [],
       // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
@@ -101,7 +128,7 @@ export default {
     window.addEventListener("resize", this.resizePlot);
 
     this.layout = reactive({
-      title: "GEF Retrofit Decision Making Workshop",
+      title: "ENBIX Retrofit Decision Making Workshop",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
@@ -129,7 +156,7 @@ export default {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
-      const colorKey = "EUI Savings %"; // Change "Age" to any other column name if needed
+      const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       // const mappedData = this.mapTextColumnsToNumbers(this.jsonData);
 
@@ -185,7 +212,7 @@ export default {
           type: "parcoords",
           line: {
             color: colorValues, // Set color to array of values from the selected column
-            colorscale: "Jet", // Choose a color scale, e.g., Viridis, Jet, etc.
+            colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
             // showscale: true,
             // cmin: Math.min(...colorValues), // Minimum value for color scaling
             // cmax: Math.max(...colorValues), // Maximum value for color scaling
@@ -226,6 +253,10 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
+    updatePlotColor() {
+      // console.log("plotColor", this.plotColor);
+      this.resetPlot();
+    },
     updateSelectedData(eventData) {
       // Parse constraints from the current eventData
       if (eventData && eventData[0]) {
@@ -362,7 +393,7 @@ export default {
       this.constraints = {};
       // Purge the existing graph
       this.Plotly.purge(myPlot);
-      const stringColumnName = "HVAC";
+
       // Prepare fresh data and layout
       const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
       this.generateMappings(columnsWithStrings);
@@ -386,8 +417,8 @@ export default {
         {
           type: "parcoords",
           line: {
-            color: this.jsonData.map((row) => row["EUI Savings %"]),
-            colorscale: "Jet",
+            color: this.jsonData.map((row) => row[this.plotAxis]),
+            colorscale: this.plotColor,
             width: 5,
           },
           dimensions: freshDimensions,
