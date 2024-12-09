@@ -1,14 +1,71 @@
 <template>
   <div class="backgroundCont flex flex-col">
-    <UButton
-      icon="i-heroicons-arrow-path"
-      size="sm"
-      color="primary"
-      variant="outline"
-      class="flex self-end"
-      label="Reset Filters"
-      @click="resetPlot()"
-    />
+    <div class="flex justify-end gap-3">
+      <UButton
+        icon="i-heroicons-funnel"
+        size="sm"
+        color="primary"
+        variant="outline"
+        class="flex self-end"
+        label="Filters"
+        @click="isOpen = true"
+      />
+      <UButton
+        icon="i-heroicons-x-mark"
+        size="sm"
+        color="red"
+        variant="soft"
+        class="flex self-end"
+        label="Reset"
+        @click="resetPlot()"
+      />
+    </div>
+    <USlideover v-model="isOpen" class="slideOver p-10" :overlay="false">
+      <div class="p-4 flex-1">
+        <div class="title p-2 text-md text-primary font-semibold">Filters</div>
+        <UButton
+          color="gray"
+          variant="ghost"
+          size="sm"
+          icon="i-heroicons-x-mark-20-solid"
+          class="flex sm:hidden absolute end-5 top-5 z-10"
+          square
+          padded
+          @click="isOpen = false"
+        />
+        <div class="grid grid-cols-2">
+          <UFormGroup label="Cost Schedule" class="p-2" name="cost">
+            <UInput v-model="cost" type="number" disabled />
+          </UFormGroup>
+          <UFormGroup label="Energy Prices" class="p-2" name="EnergyPrices">
+            <UInput v-model="energy" type="number" disabled />
+          </UFormGroup>
+        </div>
+        <div class="grid grid-cols-2">
+          <UFormGroup label="GHG Rates" class="p-2" name="GHG">
+            <UInput v-model="GHG" type="number" disabled />
+          </UFormGroup>
+          <UFormGroup label="GHG Rates" class="p-2" name="GHG2">
+            <UInput v-model="GHG2" type="number" disabled />
+          </UFormGroup>
+        </div>
+        <UFormGroup label="Walls" class="p-2" name="walls">
+          <URange :min="0" :max="100" v-model="wallRValue" disabled />
+        </UFormGroup>
+        <div class="grid grid-cols-1 p-2">
+          <UButton
+            icon="i-heroicons-check"
+            size="sm"
+            color="primary"
+            variant="solid"
+            label="Apply Filters"
+            :trailing="true"
+            block
+            @click="isOpen = false"
+          />
+        </div>
+      </div>
+    </USlideover>
     <div id="plotContainer" style="width: 100%; height: 100%"></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
@@ -26,6 +83,12 @@ export default {
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
+      isOpen: false,
+      cost: 35,
+      energy: 25,
+      GHG: 12,
+      GHG2: 6,
+      wallRValue: 10,
       // mappedSCV2: [],
       // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
@@ -398,5 +461,11 @@ line.highlight {
   stroke-width: 20 !important;
   opacity: 0.2 !important;
   stroke: black !important;
+}
+.slideOver > div {
+  background-color: transparent;
+  backdrop-filter: blur(50px);
+  border-radius: 20px;
+  height: fit-content;
 }
 </style>
