@@ -2,7 +2,6 @@
   <div class="backgroundCont flex flex-col">
     <div class="flex justify-end gap-3">
       <UButton
-        icon="i-heroicons-funnel"
         size="sm"
         color="primary"
         variant="outline"
