@@ -1,6 +1,6 @@
 <template>
   <div class="backgroundCont flex flex-col">
-    <div class="flex justify-end gap-3">
+    <div class="flex justify-end gap-3" v-if="Plotly">
       <UButton
         size="sm"
         color="primary"
@@ -81,6 +81,13 @@
         </div>
       </div>
     </USlideover>
+    <div class="flex items-center space-x-4" v-if="!Plotly">
+      <!-- <USkeleton class="h-12 w-12" :ui="{ rounded: 'rounded-full' }" /> -->
+      <div class="space-y-2 w-full flex items-center flex-col">
+        <USkeleton class="h-12 w-1/4" />
+        <USkeleton class="h-96 w-full" />
+      </div>
+    </div>
     <div id="plotContainer" style="width: 100%; height: 100%"></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
@@ -157,36 +164,12 @@ export default {
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
-      // const mappedData = this.mapTextColumnsToNumbers(this.jsonData);
 
-      // const stringColumnName = "Premium ($)";
-      // const stringColumnName = "SOG R-Value";
       const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
-
-      // const stringColumnName = "HVAC";
-      // const stringColumnName3 = "CMHC MLI";
-      // const stringColumnValues = jsonData.map((row) => row[stringColumnName]);
-      // const stringColumnValues2 = jsonData.map((row) => row[stringColumnName2]);
-      // const stringColumnValues3 = jsonData.map((row) => row[stringColumnName3]);
-      // const uniqueSCV = Array.from(new Set(stringColumnValues)); // Get unique values
-      // const uniqueSCV2 = Array.from(new Set(stringColumnValues2)); // Get unique values
-      // const uniqueSCV3 = Array.from(new Set(stringColumnValues3)); // Get unique values
       this.jsonData = jsonData;
       this.selectedData = jsonData;
-      // this.mappedSCV = uniqueSCV.map((label, index) => ({
-      //   label: label,
-      //   value: index,
-      // }));
-      // console.log("mappedSCV", this.mappedSCV);
+
       this.generateMappings(columnsWithStrings);
-      // this.mappedSCV2 = uniqueSCV2.map((label, index) => ({
-      //   label: label,
-      //   value: index,
-      // }));
-      // this.mappedSCV3 = uniqueSCV3.map((label, index) => ({
-      //   label: label,
-      //   value: index,
-      // }));
 
       const dimensions = Object.keys(this.jsonData[0]).map((key) => {
         const isStringColumn = columnsWithStrings.includes(key);
@@ -252,9 +235,21 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
-    updatePlotColor() {
-      // console.log("plotColor", this.plotColor);
-      this.resetPlot();
+    async updatePlotColor() {
+      var myPlot = document.getElementById("plotContainer");
+
+      const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
+      const colorValues = this.jsonData.map((row) => row[colorKey]); // Extract values for color scaling
+      var update = {
+        line: {
+          color: colorValues, // Set color to array of values from the selected column
+          colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
+          width: 5,
+        },
+      };
+      this.Plotly.restyle(myPlot, update);
+
+      // this.resetPlot();
     },
     updateSelectedData(eventData) {
       // Parse constraints from the current eventData
@@ -391,7 +386,7 @@ export default {
       this.selectedRanges = {};
       this.constraints = {};
       // Purge the existing graph
-      this.Plotly.purge(myPlot);
+      // this.Plotly.purge(myPlot);
 
       // Prepare fresh data and layout
       const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
@@ -426,7 +421,7 @@ export default {
       ];
 
       // Reinitialize the plot
-      this.Plotly.newPlot(myPlot, freshPlotData, this.layout);
+      this.Plotly.restyle(myPlot, freshPlotData);
       myPlot.on("plotly_restyle", (eventData) => {
         console.log("eventData", eventData);
         const selectedColumnIndex = Object.keys(eventData[0])[0].match(
