@@ -386,7 +386,7 @@ export default {
       this.selectedRanges = {};
       this.constraints = {};
       // Purge the existing graph
-      // this.Plotly.purge(myPlot);
+      this.Plotly.purge(myPlot);
 
       // Prepare fresh data and layout
       const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
@@ -421,7 +421,7 @@ export default {
       ];
 
       // Reinitialize the plot
-      this.Plotly.restyle(myPlot, freshPlotData);
+      this.Plotly.newPlot(myPlot, freshPlotData, this.layout);
       myPlot.on("plotly_restyle", (eventData) => {
         console.log("eventData", eventData);
         const selectedColumnIndex = Object.keys(eventData[0])[0].match(
