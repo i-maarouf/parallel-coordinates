@@ -52,9 +52,13 @@
           <UFormGroup label="Plot Color" class="p-2" name="GHG">
             <UInputMenu
               v-model="plotColor"
-              :options="plotColors"
+              :options="plotColorss"
               @change="updatePlotColor()"
-            />
+            >
+              <template #option="{ option: colors }">
+                <span class="truncate">{{ colors.colorLabel }}</span>
+              </template>
+            </UInputMenu>
           </UFormGroup>
           <UFormGroup label="Colour by Axis" class="p-2" name="GHG2">
             <UInputMenu
@@ -113,7 +117,49 @@ export default {
       plotColor: "Jet",
       wallRValue: 10,
       plotAxis: "EUI Savings %",
-      plotColors: ["Jet", "Yellow Or Red", "Portland", "Hot", "Bluered"],
+      plotColors: ["Jet", "YlOrRd", "Portland", "Hot", "Bluered"],
+      plotColorss: [
+        {
+          colorName: "Jet",
+          colorLabel: "Jet",
+        },
+        {
+          colorName: "YlOrRd",
+          colorLabel: "Yellow/Red",
+        },
+        {
+          colorName: "YlGnBu",
+          colorLabel: "Yellow/Green/Blue",
+        },
+        {
+          colorName: "Portland",
+          colorLabel: "Portland",
+        },
+        {
+          colorName: "Hot",
+          colorLabel: "Hot",
+        },
+        // {
+        //   colorName: "Blackbody",
+        //   colorLabel: "Blackbody",
+        // },
+        // {
+        //   colorName: "Picnic",
+        //   colorLabel: "Picnic",
+        // },
+        // {
+        //   colorName: "Electric",
+        //   colorLabel: "Electric",
+        // },
+        // {
+        //   colorName: "Earth",
+        //   colorLabel: "Earth",
+        // },
+        {
+          colorName: "Bluered",
+          colorLabel: "Blue/Red",
+        },
+      ],
       plotAxes: [
         "EUI Savings %",
         "EUI (kWh/m2)",
@@ -209,15 +255,14 @@ export default {
       this.Plotly.newPlot(myPlot, this.plotData, this.layout);
 
       myPlot.on("plotly_restyle", (eventData) => {
-        console.log("eventData", eventData);
         const selectedColumnIndex = Object.keys(eventData[0])[0].match(
           /\d+/
         )[0];
-        console.log("selectedColumnIndex", selectedColumnIndex);
+        // console.log("selectedColumnIndex", selectedColumnIndex);
         const selectedColumn = dimensions[selectedColumnIndex].label;
         let selectedRange =
           eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
-        console.log("SELECTED RANGE", selectedRange);
+        // console.log("SELECTED RANGE", selectedRange);
 
         if (selectedRange) {
           this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
@@ -237,7 +282,10 @@ export default {
   methods: {
     async updatePlotColor() {
       var myPlot = document.getElementById("plotContainer");
-
+      var plotColorLabel = this.plotColor.colorLabel;
+      if (this.plotColor.colorName) {
+        this.plotColor = this.plotColor.colorName;
+      }
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = this.jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       var update = {
@@ -248,30 +296,42 @@ export default {
         },
       };
       this.Plotly.restyle(myPlot, update);
+      this.plotColor = plotColorLabel;
 
       // this.resetPlot();
     },
     updateSelectedData(eventData) {
-      // Parse constraints from the current eventData
       if (eventData && eventData[0]) {
         Object.entries(eventData[0]).forEach(([dimension, range]) => {
           if (range && range[0]) {
-            this.constraints[dimension] = range; // Add/Update constraint for the dimension
+            // Normalize range to ensure it's always an array of ranges
+            const newRanges = Array.isArray(range[0]) ? range : [range];
+
+            // Initialize or replace constraints for this dimension
+            this.constraints[dimension] = newRanges;
           } else {
-            delete this.constraints[dimension]; // Remove constraint if invalid
+            // Remove constraints if the range is invalid
+            delete this.constraints[dimension];
           }
         });
       }
 
-      // Process the dataset based on all active constraints
+      // console.log("Constraints after update:", this.constraints);
+
+      // Filter the dataset based on the constraints
       const selectedRows = this.jsonData.filter((row) => {
-        return Object.entries(this.constraints).every(([dimension, range]) => {
+        return Object.entries(this.constraints).every(([dimension, ranges]) => {
           const dimensionIndex = parseInt(
             dimension.match(/dimensions\[(\d+)\]/)[1],
             10
           );
           const columnName = this.dimensionKeys[dimensionIndex];
           const value = row[columnName];
+
+          // console.log(
+          //   `Filtering column: ${columnName}, Value: ${value}, Ranges:`,
+          //   ranges
+          // );
 
           if (this.mappedColumns[columnName]) {
             // Handle string columns
@@ -281,26 +341,51 @@ export default {
 
             return (
               mappedValue !== undefined &&
-              mappedValue >= range[0][0] &&
-              mappedValue <= range[0][1]
+              ranges.some((range) => {
+                if (Array.isArray(range[0])) {
+                  // Handle nested ranges for strings
+                  return range.some(
+                    (subRange) =>
+                      Array.isArray(subRange) &&
+                      mappedValue >= subRange[0] &&
+                      mappedValue <= subRange[1]
+                  );
+                } else if (Array.isArray(range) && range.length === 2) {
+                  // Handle non-nested range
+                  return mappedValue >= range[0] && mappedValue <= range[1];
+                }
+                return false; // Ignore invalid range formats
+              })
             );
           } else if (typeof value === "number") {
             // Handle numeric columns
-            return value >= range[0][0] && value <= range[0][1];
+            return ranges.some((range) => {
+              if (Array.isArray(range[0])) {
+                // Handle nested arrays by checking all ranges within them
+                return range.some(
+                  (subRange) =>
+                    Array.isArray(subRange) &&
+                    value >= subRange[0] &&
+                    value <= subRange[1]
+                );
+              } else if (Array.isArray(range) && range.length === 2) {
+                // Handle non-nested range
+                return value >= range[0] && value <= range[1];
+              }
+              return false; // Ignore invalid range formats
+            });
           } else {
-            // Handle unexpected cases
             return false;
           }
         });
       });
 
-      // Update the selected data for the table
-      this.selectedData = selectedRows;
+      console.log("Selected Rows:", selectedRows);
 
-      // Debugging: Log active constraints and selected rows
-      // console.log("Active Constraints:", this.constraints);
-      // console.log("Selected Rows:", this.selectedData);
+      // Update selected data
+      this.selectedData = selectedRows;
     },
+
     // updateSelectedData(eventData) {
     //   // Parse constraints from the current eventData
     //   if (eventData && eventData[0]) {
