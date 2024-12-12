@@ -282,8 +282,9 @@ export default {
   methods: {
     async updatePlotColor() {
       var myPlot = document.getElementById("plotContainer");
-      var plotColorLabel = this.plotColor.colorLabel;
+      var plotColorLabel = this.plotColor;
       if (this.plotColor.colorName) {
+        var plotColorLabel = this.plotColor.colorLabel;
         this.plotColor = this.plotColor.colorName;
       }
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
