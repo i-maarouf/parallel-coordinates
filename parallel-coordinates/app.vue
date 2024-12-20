@@ -22,8 +22,8 @@
           </template>
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
-              This version of the app is for demonstration purposes only for the
-              Alberta Ecotrust RFP.
+              This version of the app is for demonstration purposes only for for
+              the Avenue Living RFP
             </div>
 
             <UButton
