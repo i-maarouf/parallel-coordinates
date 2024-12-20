@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/enbix.jpeg" alt="" />
+          <img src="../public/avenue-living.png" alt="" />
         </div>
       </div>
       <!-- <HorizontalNavigation /> -->
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #00355c;
+  background-color: #002855;
 }
 .logo img {
-  width: 100px;
+  width: 200px;
 }
 .linkActive {
   border-radius: 5px;

@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to (ENBIX) ONLINE PARAMETRIC ENERGY MODELLING TOOL
+          Welcome to Avenue Living Retrofit Decision Tool
         </div>
         <div class="text-md text-center">
           Before exploring our tool, please select from different types of
@@ -14,21 +14,19 @@
       </div>
       <UCard>
         <template #header>
-          <div class="stepper flex items-center justify-between">
+          <div class="stepper flex items-center justify-center">
             <div class="step1 flex flex-col items-center gap-1">
               <div class="icons activeIcon">
                 <UIcon name="i-heroicons-home" class="w-5 h-5 text-slate-50" />
               </div>
               <div class="stepHeader">
-                <div class="text-md font-semibold">Housing</div>
+                <div class="text-md font-semibold">Property</div>
               </div>
               <div class="stepSubheader">
-                <div class="text-xs text-center">
-                  Select your housing archetype
-                </div>
+                <div class="text-xs text-center">Select your building</div>
               </div>
             </div>
-            <UDivider
+            <!-- <UDivider
               size="xs"
               :class="stepper >= 2 ? 'w-1/3 completedStep' : 'w-1/3'"
             />
@@ -63,11 +61,11 @@
               <div class="stepSubheader text-center">
                 <div class="text-xs text-center">Select your area</div>
               </div>
-            </div>
+            </div> -->
           </div>
         </template>
         <div>
-          <div class="step1Q" v-if="stepper == 1">
+          <div class="step1Q">
             <div
               class="housingContainers flex flex-wrap gap-4 items-center md:justify-between justify-center columns-4"
             >
@@ -78,8 +76,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Single Family + d-Garage</div>
-                  <img src="../public/SngFam+Grg.jpeg" alt="" />
+                  <div class="text-center">Sunnyside Gardens</div>
+                  <img src="../public/Sunnyside_Gardens.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -89,8 +87,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Single Family + Garage</div>
-                  <img src="../public/SngFam+dG.jpeg" alt="" />
+                  <div class="text-center">Westside Apartments</div>
+                  <img src="../public/Westside_Apartments.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -100,8 +98,8 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Duplex + d-Garage</div>
-                  <img src="../public/Duplex+dG.jpeg" alt="" />
+                  <div class="text-center">Parklane Gardens</div>
+                  <img src="../public/Parklane_Gardens.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -111,14 +109,14 @@
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Duplex + Garage</div>
-                  <img src="../public/Duplex+grg.jpeg" alt="" />
+                  <div class="text-center">Amberwynd Apartments</div>
+                  <img src="../public/Amberwynd_Apartments.jpeg" alt="" />
                 </div>
               </UCard>
             </div>
           </div>
 
-          <div class="step2Q flex items-center gap-6" v-if="stepper == 2">
+          <!-- <div class="step2Q flex items-center gap-6" v-if="stepper == 2">
             <UFormGroup label="Climate City" name="climateCity" class="w-1/4">
               <UInputMenu
                 v-model="climateCity"
@@ -127,7 +125,6 @@
                 color="primary"
                 :options="locations"
               />
-              <!-- <UInput v-model="climateZone" variant="outline" /> -->
             </UFormGroup>
             <UFormGroup label="Climate Zone" name="climateZone" class="w-1/4">
               <UInput v-model="climateZone" variant="outline" disabled />
@@ -143,13 +140,6 @@
           <div class="step3Q flex items-center gap-6" v-if="stepper == 3">
             <UFormGroup label="Gross Floor Area" name="grossFloorArea">
               <UInput v-model="area" type="number" />
-              <!-- <UInputMenu
-                v-model="areaUnit"
-                size="md"
-                color="primary"
-                :options="units"
-                class="w-1/4"
-              /> -->
             </UFormGroup>
             <UFormGroup label="Unit" name="unit" class="w-1/4">
               <UInputMenu
@@ -160,11 +150,11 @@
                 class="w-1/3"
               />
             </UFormGroup>
-          </div>
+          </div> -->
         </div>
         <template #footer>
-          <div class="buttonsContainer flex justify-between items-center">
-            <UButton
+          <div class="buttonsContainer flex justify-end items-center">
+            <!-- <UButton
               label="Prev"
               color="primary"
               @click="handlePrev()"
@@ -173,9 +163,9 @@
               <template #leading>
                 <UIcon name="i-heroicons-arrow-left-20-solid" class="w-5 h-5" />
               </template>
-            </UButton>
+            </UButton> -->
             <UButton
-              :label="stepper != 3 ? 'Next' : 'Launch Pathfinder'"
+              :label="stepper != 1 ? 'Next' : 'Launch Pathfinder'"
               :disabled="handleDisable()"
               color="primary"
               @click="handleNext()"
@@ -243,9 +233,9 @@ export default {
       this.stepper != 1 ? this.stepper-- : null;
     },
     async handleNext() {
-      this.stepper != 3
+      this.stepper != 1
         ? this.stepper++
-        : this.stepper == 3
+        : this.stepper == 1
         ? await navigateTo("/dashboard")
         : null;
     },
@@ -304,11 +294,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #f28202;
+  background-color: #a5caf4;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #f28202;
+  background-color: #a5caf4;
 }
 .icons {
   border-radius: 50%;
@@ -323,7 +313,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #00355c;
+  background-color: #002855;
 }
 /* .step1::after {
   content: "";
