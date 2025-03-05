@@ -180,7 +180,7 @@ export default {
     window.addEventListener("resize", this.resizePlot);
 
     this.layout = reactive({
-      title: "Avenue Living Retrofit Decision Tool",
+      title: "County of Haliburton GMF Funding Decision Tool",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior

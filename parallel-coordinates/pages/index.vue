@@ -5,11 +5,10 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to Avenue Living Retrofit Decision Tool
+          Welcome to County of Haliburton GMF Funding Decision Tool
         </div>
         <div class="text-md text-center">
-          Before exploring our tool, please select from different types of
-          building models to better cater your needs.
+          Choose a propery to begin optimizing the retrofit decisions.
         </div>
       </div>
       <UCard>
@@ -76,8 +75,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Sunnyside Gardens</div>
-                  <img src="../public/Sunnyside_Gardens.jpeg" alt="" />
+                  <div class="text-center">Admin Building</div>
+                  <img src="../public/Admin_building.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -87,8 +86,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Westside Apartments</div>
-                  <img src="../public/Westside_Apartments.jpeg" alt="" />
+                  <div class="text-center">Old Admin Building</div>
+                  <img src="../public/Old_Admin_Building.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -98,8 +97,8 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Parklane Gardens</div>
-                  <img src="../public/Parklane_Gardens.jpeg" alt="" />
+                  <div class="text-center">EMS Base</div>
+                  <img src="../public/EMS_Base.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -109,8 +108,8 @@
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Amberwynd Apartments</div>
-                  <img src="../public/Amberwynd_Apartments.jpeg" alt="" />
+                  <div class="text-center">Patrol 1 Yard</div>
+                  <img src="../public/patrol1_yard.jpeg" alt="" />
                 </div>
               </UCard>
             </div>
@@ -294,11 +293,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #a5caf4;
+  background-color: #c9cfd794;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #a5caf4;
+  background-color: #c9cfd794;
 }
 .icons {
   border-radius: 50%;
@@ -313,7 +312,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #002855;
+  background-color: #000;
 }
 /* .step1::after {
   content: "";

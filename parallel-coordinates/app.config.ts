@@ -1,7 +1,7 @@
 export default defineAppConfig({
   ui: {
-    primary: "customBlue",
-    secondary: "customOrange",
+    primary: "customBlack",
+    // secondary: "gray",
     gray: "zinc",
     header: {
       height: "4rem",
