@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/logo_white.svg" alt="" />
+          <img src="../public/Saskatoon_logo.jpeg" alt="" />
         </div>
       </div>
       <HorizontalNavigation />
@@ -31,7 +31,7 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #000;
+  background-color: #00594e;
 }
 .logo img {
   width: 200px;

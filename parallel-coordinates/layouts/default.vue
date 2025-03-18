@@ -8,7 +8,7 @@
       "
     >
       <div class="p-1 imgCont">
-        <img src="/logo_white.svg" width="200px" alt="" srcset="" />
+        <img src="/Saskatoon_logo.jpeg" width="200px" alt="" srcset="" />
       </div>
       <UDivider />
 

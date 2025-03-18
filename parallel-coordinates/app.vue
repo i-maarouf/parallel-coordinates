@@ -22,13 +22,12 @@
           </template>
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
-              This version of the app is for demonstration purposes only for for
-              the County of Haliburton GMF Funding RFP
+              This version of the app is for demonstration purposes only for the
+              City of Saskatoon Deep Retrofit Decision Tool
             </div>
 
             <UButton
               color="primary"
-              variant="soft"
               label="Acknowledge"
               icon="i-heroicons-check"
               :trailing="true"

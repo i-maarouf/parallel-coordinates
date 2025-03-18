@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to County of Haliburton GMF Funding Decision Tool
+          Welcome to City of Saskatoon Deep Retrofit Decision Tool
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -75,8 +75,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Admin Building</div>
-                  <img src="../public/Admin_building.jpeg" alt="" />
+                  <div class="text-center">Vic Rempel</div>
+                  <img src="../public/Vic_Rempel.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -86,8 +86,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Old Admin Building</div>
-                  <img src="../public/Old_Admin_Building.jpeg" alt="" />
+                  <div class="text-center">Fire Station</div>
+                  <img src="../public/fire_station.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -97,8 +97,8 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">EMS Base</div>
-                  <img src="../public/EMS_Base.jpeg" alt="" />
+                  <div class="text-center">Shaw Centre</div>
+                  <img src="../public/shaw_centre.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -108,8 +108,8 @@
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Patrol 1 Yard</div>
-                  <img src="../public/patrol1_yard.jpeg" alt="" />
+                  <div class="text-center">City Hall</div>
+                  <img src="../public/city_hall.jpeg" alt="" />
                 </div>
               </UCard>
             </div>
@@ -293,11 +293,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #c9cfd794;
+  background-color: #00594e29;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #c9cfd794;
+  background-color: #00594e29;
 }
 .icons {
   border-radius: 50%;
@@ -312,7 +312,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #000;
+  background-color: #00594e;
 }
 /* .step1::after {
   content: "";
