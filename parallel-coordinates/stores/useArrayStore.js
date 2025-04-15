@@ -8,8 +8,11 @@ export const useArrayStore = defineStore("arrayStore", {
     addItem(item) {
       this.myArray.push(item);
     },
-    removeItem(index) {
-      this.myArray.splice(index, 1);
+    removeItem(item) {
+      const index = this.myArray.indexOf(item);
+      if (index !== -1) {
+        this.myArray.splice(index, 1);
+      }
     },
   },
 });

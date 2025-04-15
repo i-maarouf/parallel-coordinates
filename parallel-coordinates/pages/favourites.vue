@@ -22,6 +22,7 @@
       <UTable
         :rows="rows"
         v-model="selected"
+        :columns="columns"
         class="w-full"
         :empty-state="{
           icon: 'i-heroicons-circle-stack-20-solid',
@@ -81,6 +82,13 @@ export default {
       const start = (this.page - 1) * this.pageCount;
       const end = start + this.pageCount;
       return this.arrayStore.myArray.slice(start, end);
+    },
+    columns() {
+      if (this.rows.length === 0) return []; // Prevent Object.keys(undefined)
+      return Object.keys(this.rows[0]).map((key) => ({
+        key,
+        label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "),
+      }));
     },
   },
   methods: {
