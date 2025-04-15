@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-start space-x-2 w-full py-32 px-5 overflow-y-auto"
+    class="flex flex-col items-start space-x-2 w-full pt-36 pb-10 px-5 overflow-y-auto"
   >
     <!-- <HorizontalNavigation /> -->
     <div class="row grid grid-cols-1 w-full place-items-center">

@@ -8,6 +8,7 @@
           icon="i-heroicons-star"
           size="sm"
           color="yellow"
+          class="favouritesBtn"
           variant="outline"
           :disabled="selected.length > 0 ? false : true"
           label="Add to favourites"
@@ -16,10 +17,11 @@
         />
       </div>
     </div>
-    <UCard class="tableCont">
+    <UCard class="tableCont" id="tableContainer" tabindex="0">
       <UTable
         :rows="rows"
         v-model="selected"
+        v-if="selectedData.length > 0"
         :loading="selectedData ? false : true"
         :loading-state="{
           icon: 'i-heroicons-arrow-path-20-solid',
