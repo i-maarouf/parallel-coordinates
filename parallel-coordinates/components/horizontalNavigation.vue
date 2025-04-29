@@ -34,6 +34,7 @@ const links = [
       label: "Settings",
       icon: "i-heroicons-cog-8-tooth",
       labelClass: "settingsPage",
+      disabled: true,
       to: "/settings",
     },
   ],

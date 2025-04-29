@@ -1,6 +1,6 @@
 <template>
   <div class="backgroundCont flex flex-col">
-    <NuxtTour />
+    <!-- <NuxtTour /> -->
     <div class="flex justify-end gap-3" v-if="Plotly">
       <UButton
         size="sm"
