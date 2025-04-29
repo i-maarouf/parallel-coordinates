@@ -50,18 +50,19 @@
           </UFormGroup>
         </div>
         <div class="grid grid-cols-2">
-          <UFormGroup label="Plot Color" class="p-2" name="GHG">
+          <UFormGroup label="Plot Color" class="p-2" name="plotColor">
             <UInputMenu
               v-model="plotColor"
-              :options="plotColorss"
+              :options="plotColors"
+              option-attribute="colorLabel"
               @change="updatePlotColor()"
             >
-              <template #option="{ option: colors }">
+              <!-- <template #option="{ option: colors }">
                 <span class="truncate">{{ colors.colorLabel }}</span>
-              </template>
+              </template> -->
             </UInputMenu>
           </UFormGroup>
-          <UFormGroup label="Colour by Axis" class="p-2" name="GHG2">
+          <UFormGroup label="Colour by Axis" class="p-2" name="plotAxis">
             <UInputMenu
               v-model="plotAxis"
               :options="plotAxes"
@@ -81,7 +82,7 @@
             label="Apply Changes"
             :trailing="true"
             block
-            @click="isOpen = false"
+            @click="applyPlotChanges()"
           />
         </div>
       </div>
@@ -116,10 +117,11 @@ export default {
       GHG: 12,
       GHG2: 6,
       plotColor: "Jet",
+
       wallRValue: 10,
-      plotAxis: "EUI Savings %",
-      plotColors: ["Jet", "YlOrRd", "Portland", "Hot", "Bluered"],
-      plotColorss: [
+      plotAxis: "GHG Saving%",
+
+      plotColors: [
         {
           colorName: "Jet",
           colorLabel: "Jet",
@@ -162,12 +164,12 @@ export default {
         },
       ],
       plotAxes: [
-        "EUI Savings %",
-        "EUI (kWh/m2)",
-        "GHG Savings %",
-        "GHGI (kg/m2)",
-        "Peak kWe",
-        "Premium $",
+        "GHG Saving%",
+
+        "En Saving %",
+        "GHGI kgCO2/m2",
+        "TEDI kWh/m2",
+        "TEUI kWh/m2",
       ],
       // mappedSCV2: [],
       // mappedSCV3: [],
@@ -175,13 +177,15 @@ export default {
       mappedColumns: {},
       selectedRanges: {}, // Track selection ranges for each column
       jsonData: [], // Raw data for filtering
+
+      plotColumns: [],
     };
   },
   async mounted() {
     window.addEventListener("resize", this.resizePlot);
 
     this.layout = reactive({
-      title: "City of Saskatoon Deep Retrofit Decision Tool",
+      title: "TC Energy Tower Retrofit Decision Tool",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
@@ -203,7 +207,7 @@ export default {
       // Fetch and parse Excel file data
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
       // const response = await fetch("gefdatacost2.xlsx");
-      const response = await fetch("gefdatacostFinal.xlsx");
+      const response = await fetch("A23P1_Parametric_Results.csv");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -211,69 +215,24 @@ export default {
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
-
-      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+      // const excludedColumns = ["ERV Eff"];
+      const columnsWithStrings = [
+        "Air Leakage",
+        "LPD",
+        "ERV",
+        "Controls",
+        "HVAC System",
+      ];
       this.jsonData = jsonData;
       this.selectedData = jsonData;
+      this.plotColumns = jsonData;
+
+      // this.removeColumns(excludedColumns);
+      // this.addOutputColumns();
+      this.dimensionKeys = Object.keys(this.plotColumns[0]); // Maps Plotly dimension index to column names
 
       this.generateMappings(columnsWithStrings);
-
-      const dimensions = Object.keys(this.jsonData[0]).map((key) => {
-        const isStringColumn = columnsWithStrings.includes(key);
-        return {
-          label: key,
-          values: this.jsonData.map((row) =>
-            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
-          ),
-          ...(isStringColumn && {
-            tickvals: this.mappedColumns[key].map((item) => item.value),
-            ticktext: this.mappedColumns[key].map((item) => item.label),
-          }),
-          labelfont: { color: "#ffffff" },
-          tickfont: { color: "#ffffff" },
-        };
-      });
-
-      this.dimensionKeys = Object.keys(this.jsonData[0]); // Maps Plotly dimension index to column names
-
-      this.plotData = [
-        {
-          type: "parcoords",
-          line: {
-            color: colorValues, // Set color to array of values from the selected column
-            colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
-            // showscale: true,
-            // cmin: Math.min(...colorValues), // Minimum value for color scaling
-            // cmax: Math.max(...colorValues), // Maximum value for color scaling
-            width: 5,
-          },
-          dimensions: dimensions,
-          customdata: jsonData, // Store the entire jsonData for later access
-        },
-      ];
-
-      // Render plot using Plotly
-      this.Plotly.newPlot(myPlot, this.plotData, this.layout);
-
-      myPlot.on("plotly_restyle", (eventData) => {
-        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
-          /\d+/
-        )[0];
-        // console.log("selectedColumnIndex", selectedColumnIndex);
-        const selectedColumn = dimensions[selectedColumnIndex].label;
-        let selectedRange =
-          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
-        // console.log("SELECTED RANGE", selectedRange);
-
-        if (selectedRange) {
-          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
-        } else {
-          delete this.selectedRanges[selectedColumn]; // Remove if no selection
-        }
-
-        // Filter data based on all active selections
-        this.updateSelectedData(eventData);
-      });
+      this.renderPlot();
     }
   },
   beforeUnmount() {
@@ -281,15 +240,17 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
-    async updatePlotColor() {
+    updatePlotColor() {
       var myPlot = document.getElementById("plotContainer");
       var plotColorLabel = this.plotColor;
+      console.log("plotColor", this.plotColor);
+
       if (this.plotColor.colorName) {
         var plotColorLabel = this.plotColor.colorLabel;
         this.plotColor = this.plotColor.colorName;
       }
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
-      const colorValues = this.jsonData.map((row) => row[colorKey]); // Extract values for color scaling
+      const colorValues = this.plotColumns.map((row) => row[colorKey]); // Extract values for color scaling
       var update = {
         line: {
           color: colorValues, // Set color to array of values from the selected column
@@ -321,13 +282,17 @@ export default {
       // console.log("Constraints after update:", this.constraints);
 
       // Filter the dataset based on the constraints
-      const selectedRows = this.jsonData.filter((row) => {
+      const selectedRows = this.plotColumns.filter((row) => {
+        // console.log("Row:", row);
+
         return Object.entries(this.constraints).every(([dimension, ranges]) => {
           const dimensionIndex = parseInt(
             dimension.match(/dimensions\[(\d+)\]/)[1],
             10
           );
+          // console.log("dimensionKeys:", this.dimensionKeys);
           const columnName = this.dimensionKeys[dimensionIndex];
+          // console.log("Column Name:", columnName);
           const value = row[columnName];
 
           // console.log(
@@ -388,61 +353,6 @@ export default {
       this.selectedData = selectedRows;
     },
 
-    // updateSelectedData(eventData) {
-    //   // Parse constraints from the current eventData
-    //   if (eventData && eventData[0]) {
-    //     Object.entries(eventData[0]).forEach(([dimension, range]) => {
-    //       // console.log("range", range);
-
-    //       if (range && range[0]) {
-    //         this.constraints[dimension] = range; // Add/Update constraint for the dimension
-    //       } else {
-    //         delete this.constraints[dimension]; // Remove constraint if invalid
-    //       }
-    //     });
-    //   }
-
-    //   // Process the dataset based on all active constraints
-    //   const selectedRows = this.jsonData.filter((row) => {
-    //     return Object.entries(this.constraints).every(([dimension, range]) => {
-    //       const dimensionIndex = parseInt(
-    //         dimension.match(/dimensions\[(\d+)\]/)[1],
-    //         10
-    //       );
-    //       const columnName = this.dimensionKeys[dimensionIndex];
-    //       const value = row[columnName];
-    //       // console.log("value", value);
-    //       // console.log("type of value", typeof value);
-
-    //       if (typeof value === "string") {
-    //         // console.log("value", value);
-
-    //         // Map text value and compare
-    //         const mappedValue = this.mappedSCV.find(
-    //           (item) => item.label === value
-    //         )?.value;
-    //         return (
-    //           mappedValue !== undefined &&
-    //           mappedValue >= range[0][0] &&
-    //           mappedValue <= range[0][1]
-    //         );
-    //       } else {
-    //         // console.log("value", value);
-
-    //         // Compare numeric values
-    //         return value >= range[0][0] && value <= range[0][1];
-    //       }
-    //     });
-    //   });
-    //   // console.log("selectedRows", selectedRows);
-
-    //   // Update the selected data for the table
-    //   this.selectedData = selectedRows;
-
-    //   // // Debugging: Log active constraints and selected rows
-    //   // console.log("Active Constraints:", this.constraints);
-    //   // console.log("Selected Rows:", this.selectedData);
-    // },
     resizePlot() {
       this.Plotly.Plots.resize("plotContainer");
     },
@@ -458,7 +368,7 @@ export default {
 
       columnsWithStrings.forEach((column) => {
         const uniqueValues = Array.from(
-          new Set(this.jsonData.map((row) => row[column]))
+          new Set(this.plotColumns.map((row) => row[column]))
         );
         this.mappedColumns[column] = uniqueValues.map((label, index) => ({
           label: label,
@@ -468,67 +378,134 @@ export default {
     },
     // Method to reset the parallel coordinates plot
     resetPlot() {
-      const myPlot = document.getElementById("plotContainer");
-      this.selectedData = this.jsonData;
+      this.selectedData = this.plotColumns;
       this.selectedRanges = {};
       this.constraints = {};
+      this.GHG = 12;
       // Purge the existing graph
-      this.Plotly.purge(myPlot);
+      this.applyPlotChanges();
 
       // Prepare fresh data and layout
-      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+    },
+    applyPlotChanges() {
+      // Apply changes to the plot based on user input
+      // var myPlot = document.getElementById("plotContainer");
+      // this.jsonData.forEach((row) => {
+      //   row["GHGI (kg/m2)"] = row["EUI Savings %"] * this.GHG;
+      // });
+      this.renderPlot();
+      this.isOpen = false;
+    },
+    renderPlot() {
+      var myPlot = document.getElementById("plotContainer");
+      // this.Plotly.purge(myPlot);
+      var config = {
+        toImageButtonOptions: {
+          format: "svg", // one of png, svg, jpeg, webp
+          filename: "custom_image",
+          height: 500,
+          width: 700,
+          scale: 1, // Multiply title/legend/axis/canvas sizes by this factor
+        },
+      };
+      const columnsWithStrings = [
+        "Air Leakage",
+        "LPD",
+        "ERV",
+        "Controls",
+        "HVAC System",
+      ];
       this.generateMappings(columnsWithStrings);
-      const freshDimensions = Object.keys(this.jsonData[0]).map((key) => {
+      const freshDimensions = Object.keys(this.plotColumns[0]).map((key) => {
         const isStringColumn = columnsWithStrings.includes(key);
         return {
           label: key,
-          values: this.jsonData.map((row) =>
+          values: this.plotColumns.map((row) =>
             isStringColumn ? this.stringToValue(key, row[key]) : row[key]
           ),
           ...(isStringColumn && {
             tickvals: this.mappedColumns[key].map((item) => item.value),
             ticktext: this.mappedColumns[key].map((item) => item.label),
           }),
-          labelfont: { color: "#ffffff" },
-          tickfont: { color: "#ffffff" },
+
+          // labelfont: { color: "#ffffff" },
+          // tickfont: { color: "#ffffff" },
         };
       });
+      var colorScale = 0;
+      this.plotColors.forEach((color, index) => {
+        if (this.plotColor === color.colorLabel) {
+          colorScale = color.colorName;
+        }
+      });
+      // console.log("this.plotcolor", colorScale);
 
       const freshPlotData = [
         {
           type: "parcoords",
           line: {
-            color: this.jsonData.map((row) => row[this.plotAxis]),
-            colorscale: this.plotColor,
-            width: 5,
+            color: this.plotColumns.map((row) => row[this.plotAxis]),
+            colorscale: colorScale,
+            thickness: 5,
+            reversescale: true,
           },
+
           dimensions: freshDimensions,
-          customdata: this.jsonData,
+          customdata: this.plotColumns,
         },
       ];
 
       // Reinitialize the plot
-      this.Plotly.newPlot(myPlot, freshPlotData, this.layout);
+      this.Plotly.newPlot(myPlot, freshPlotData, this.layout, config);
       myPlot.on("plotly_restyle", (eventData) => {
         console.log("eventData", eventData);
-        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
-          /\d+/
-        )[0];
-        console.log("selectedColumnIndex", selectedColumnIndex);
-        const selectedColumn = freshDimensions[selectedColumnIndex].label;
-        let selectedRange =
-          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
-        console.log("SELECTED RANGE", selectedRange);
+        if (!eventData[0].line) {
+          const selectedColumnIndex = Object.keys(eventData[0])[0].match(
+            /\d+/
+          )[0];
+          console.log("selectedColumnIndex", selectedColumnIndex);
+          const selectedColumn = freshDimensions[selectedColumnIndex].label;
+          let selectedRange =
+            eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
+          console.log("SELECTED RANGE", selectedRange);
 
-        if (selectedRange) {
-          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
-        } else {
-          delete this.selectedRanges[selectedColumn]; // Remove if no selection
+          if (selectedRange) {
+            this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
+          } else {
+            delete this.selectedRanges[selectedColumn]; // Remove if no selection
+          }
+
+          // Filter data based on all active selections
+          this.updateSelectedData(eventData);
         }
-
-        // Filter data based on all active selections
-        this.updateSelectedData(eventData);
       });
+    },
+    removeColumns(excludedColumns) {
+      this.plotColumns.forEach((row) => {
+        excludedColumns.forEach((col) => {
+          delete row[col]; // Remove excluded columns from the data
+        });
+      });
+    },
+    addOutputColumns() {
+      const computedColumns = [
+        "EUI Savings %",
+        "GHG Savings %",
+        "Peak kWe",
+        "EUI (kWh/m2)",
+      ];
+      this.plotColumns.forEach((row) => {
+        // Add a new column "ComputedColumn" as the sum of the first two columns
+        row["Computed Column"] =
+          row[computedColumns[0]] + row[computedColumns[1]];
+        row["Computed Column 2"] = Math.floor(
+          (row[computedColumns[2]] / row[computedColumns[3]]) *
+            (row[computedColumns[0]] * row[computedColumns[1]])
+        );
+      });
+      console.log("plotColumns", this.plotColumns);
+
+      this.resetPlot();
     },
   },
   computed: {

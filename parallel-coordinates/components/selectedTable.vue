@@ -75,7 +75,6 @@ export default {
       });
       return this.selectedData.map((item) => ({
         ...item,
-        "Premium $": formatter.format(item["Premium $"]),
       }));
     },
     rows() {

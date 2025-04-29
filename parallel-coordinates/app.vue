@@ -23,7 +23,7 @@
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
               This version of the app is for demonstration purposes only for the
-              City of Saskatoon Deep Retrofit Decision Tool
+              TC Energy Tower Retrofit Decision Tool.
             </div>
 
             <UButton

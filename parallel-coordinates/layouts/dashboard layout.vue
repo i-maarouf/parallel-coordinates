@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/Saskatoon_logo.jpeg" alt="" />
+          <img src="../public/TCtowerLogo.jpeg" alt="" />
         </div>
       </div>
       <HorizontalNavigation />
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #00594e;
+  background-color: #355271;
 }
 .logo img {
-  width: 200px;
+  width: 60px;
 }
 .link {
   border-radius: 5px;

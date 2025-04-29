@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to City of Saskatoon Deep Retrofit Decision Tool
+          Welcome to TC Energy Tower Retrofit Decision Tool.
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -66,7 +66,7 @@
         <div>
           <div class="step1Q">
             <div
-              class="housingContainers flex flex-wrap gap-4 items-center md:justify-between justify-center columns-4"
+              class="housingContainers flex flex-wrap gap-4 items-center justify-center columns-1"
             >
               <UCard
                 :class="
@@ -75,11 +75,11 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Vic Rempel</div>
-                  <img src="../public/Vic_Rempel.jpeg" alt="" />
+                  <div class="text-center">TC Energy Tower</div>
+                  <img src="../public/TC_Energy_Tower.jpeg" alt="" />
                 </div>
               </UCard>
-              <UCard
+              <!-- <UCard
                 :class="
                   housingSelected == 2 ? 'housing selectedHouse' : 'housing '
                 "
@@ -111,7 +111,7 @@
                   <div class="text-center">City Hall</div>
                   <img src="../public/city_hall.jpeg" alt="" />
                 </div>
-              </UCard>
+              </UCard> -->
             </div>
           </div>
 
@@ -293,11 +293,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #00594e29;
+  background-color: #35527129;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #00594e29;
+  background-color: #35527129;
 }
 .icons {
   border-radius: 50%;
@@ -312,7 +312,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #00594e;
+  background-color: #355271;
 }
 /* .step1::after {
   content: "";
