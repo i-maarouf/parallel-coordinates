@@ -222,7 +222,7 @@ export default {
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
       // const response = await fetch("gefdatacost2.xlsx");
       // const response = await fetch("A23P1_Parametric_Results.csv");
-      const response = await fetch("A23P1_Parametric Results_Final.csv");
+      const response = await fetch("A23P1_Parametric_Results_Final.csv");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
