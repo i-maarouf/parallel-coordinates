@@ -293,11 +293,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #35527129;
+  background-color: #0d64ef29;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #35527129;
+  background-color: #0d64ef29;
 }
 .icons {
   border-radius: 50%;
@@ -312,7 +312,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #355271;
+  background-color: #0d64ef;
 }
 /* .step1::after {
   content: "";

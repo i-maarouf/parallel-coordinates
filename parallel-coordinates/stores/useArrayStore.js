@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export const useArrayStore = defineStore("arrayStore", {
   state: () => ({
     myArray: [],
+    selectedRows: [],
   }),
   actions: {
     addItem(item) {
@@ -13,6 +14,9 @@ export const useArrayStore = defineStore("arrayStore", {
       if (index !== -1) {
         this.myArray.splice(index, 1);
       }
+    },
+    setSelectedRows(rows) {
+      this.selectedRows = rows;
     },
   },
 });

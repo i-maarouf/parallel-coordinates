@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/TCtowerLogo.jpeg" alt="" />
+          <img src="../public/tcenergy.png" alt="" />
         </div>
       </div>
       <HorizontalNavigation />
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #355271;
+  background-color: #0d64ef;
 }
 .logo img {
-  width: 60px;
+  width: 150px;
 }
 .link {
   border-radius: 5px;

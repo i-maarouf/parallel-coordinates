@@ -60,7 +60,7 @@ export default {
 <style>
 .Container {
   --uib-size: 40px;
-  --uib-color: #355271;
+  --uib-color: #0d64ef;
 
   --uib-speed: 1s;
   --uib-bg-opacity: 0.1;

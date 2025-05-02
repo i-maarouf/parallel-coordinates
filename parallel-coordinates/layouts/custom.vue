@@ -31,7 +31,7 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #355271;
+  background-color: #0d64ef;
 }
 .logo img {
   width: 60px;

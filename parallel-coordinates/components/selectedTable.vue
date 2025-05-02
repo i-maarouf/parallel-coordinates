@@ -18,6 +18,11 @@
       </div>
     </div>
     <UCard class="tableCont" id="tableContainer" tabindex="0">
+      <div class="totalRuns">
+        Showing {{ (this.page - 1) * this.pageCount + 1 }} to
+        {{ Math.min(this.page * this.pageCount, selectedData.length) }} out of
+        {{ selectedData.length }} runs
+      </div>
       <UTable
         :rows="rows"
         v-model="selected"
@@ -36,12 +41,13 @@
           />
         </template> -->
       </UTable>
-      <div class="flex justify-end px-3 py-3.5 border-t">
+      <div class="flex justify-end px-3 py-3.5 border-t items-center gap-4">
         <UPagination
           v-model="page"
           :page-count="pageCount"
           :total="selectedData.length"
-        />
+        >
+        </UPagination>
       </div>
     </UCard>
   </div>
@@ -65,36 +71,35 @@ export default {
       favouritesArr: [],
     };
   },
-  mounted() {},
   computed: {
     formattedData() {
-      const formatter = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 0, // Adjust this if decimals are needed
-      });
       return this.selectedData.map((item) => ({
         ...item,
       }));
     },
     rows() {
       const start = (this.page - 1) * this.pageCount;
-
       const end = start + this.pageCount;
       return this.formattedData.slice(start, end);
     },
   },
+  watch: {
+    selected: {
+      handler(newVal) {
+        console.log("Selected rows changed:", newVal);
 
+        const arrayStore = useArrayStore();
+
+        arrayStore.setSelectedRows(newVal);
+      },
+      deep: true,
+    },
+  },
   methods: {
     areObjectsEqual(obj1, obj2) {
       const keys1 = Object.keys(obj1);
       const keys2 = Object.keys(obj2);
-
-      // Check if the number of properties is the same
       if (keys1.length !== keys2.length) return false;
-      const check = keys1.every((key) => obj1[key] === obj2[key]);
-
-      // Check if all values are equal
       return keys1.every((key) => obj1[key] === obj2[key]);
     },
     async addToFavourites() {
@@ -102,37 +107,39 @@ export default {
       const arrayStore = useArrayStore();
       let existFlag = false;
       let notExistsFlag = false;
-      arrayStore.myArray.length == 0
-        ? this.selected.forEach((obj1) => {
+      if (arrayStore.myArray.length === 0) {
+        this.selected.forEach((obj1) => {
+          this.loading = true;
+          arrayStore.addItem(obj1);
+          setTimeout(() => {
+            this.loading = false;
+            toast.add({
+              id: "added_to_favourites",
+              title: "Added to Favourites",
+              description: "Navigate to Favourites tab to view them",
+              icon: "i-heroicons-star",
+              timeout: 5000,
+            });
+          }, 1000);
+        });
+      } else {
+        this.selected.forEach((obj1) => {
+          const keys1 = Object.keys(obj1);
+          const exists = arrayStore.myArray.some((obj2) =>
+            keys1.every((key) => obj1[key] === obj2[key])
+          );
+          if (!exists) {
             this.loading = true;
             arrayStore.addItem(obj1);
-            window.setTimeout(() => {
-              this.loading = false;
-              toast.add({
-                id: "added_to_favourites",
-                title: "Added to Favourites",
-                description: "Navigate to Favourites tab to view them",
-                icon: "i-heroicons-star",
-                timeout: 5000,
-              });
-            }, 1000);
-          })
-        : this.selected.forEach((obj1) => {
-            const keys1 = Object.keys(obj1);
-            const exists = arrayStore.myArray.some((obj2) => {
-              return keys1.every((key) => obj1[key] === obj2[key]);
-            });
-            if (!exists) {
-              this.loading = true;
-              arrayStore.addItem(obj1);
-              notExistsFlag = true;
-            } else {
-              existFlag = true;
-            }
-          });
+            notExistsFlag = true;
+          } else {
+            existFlag = true;
+          }
+        });
+      }
 
       existFlag && notExistsFlag
-        ? window.setTimeout(() => {
+        ? setTimeout(() => {
             this.loading = false;
             toast.add({
               id: "some_exists",
@@ -151,7 +158,7 @@ export default {
             icon: "i-heroicons-no-symbol",
             timeout: 5000,
           })
-        : window.setTimeout(() => {
+        : setTimeout(() => {
             this.loading = false;
             toast.add({
               id: "added_to_favourites",
@@ -161,6 +168,7 @@ export default {
               timeout: 5000,
             });
           }, 1000);
+
       this.selected = [];
     },
   },
@@ -174,4 +182,10 @@ export default {
 /* tr:nth-child(even) {
   background-color: #80808012;
 } */
+</style>
+<style scoped>
+.totalRuns {
+  font-size: 12px;
+  color: #848388;
+}
 </style>

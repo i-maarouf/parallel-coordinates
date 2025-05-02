@@ -1,7 +1,7 @@
 <template>
   <div class="backgroundCont flex flex-col">
     <!-- <NuxtTour /> -->
-    <div class="flex justify-end gap-3" v-if="Plotly">
+    <div class="flex justify-end gap-3 my-4" v-if="Plotly">
       <UButton
         size="sm"
         color="primary"
@@ -94,7 +94,22 @@
         <USkeleton class="h-96 w-full" />
       </div>
     </div>
-    <div id="plotContainer" style="width: 100%; height: 100%"></div>
+    <div
+      id="plotContainer"
+      class="flex flex-col-reverse"
+      style="width: 100%; height: 100%"
+    >
+      <UButton
+        size="sm"
+        color="primary"
+        icon="i-heroicons-arrow-down-on-square"
+        variant="outline"
+        :trailing="true"
+        class="flex self-end"
+        label="Download Plot"
+        @click="downloadPlot()"
+      />
+    </div>
     <SelectedTable :selectedData="selectedData" />
   </div>
 </template>
@@ -102,7 +117,8 @@
 <script>
 import * as XLSX from "xlsx";
 import { reactive, watch } from "vue";
-
+import { useArrayStore } from "../stores/useArrayStore";
+import { mapState } from "pinia";
 export default {
   data() {
     return {
@@ -165,14 +181,13 @@ export default {
       ],
       plotAxes: [
         "GHG Saving%",
-
         "En Saving %",
         "GHGI kgCO2/m2",
         "TEDI kWh/m2",
         "TEUI kWh/m2",
       ],
-      // mappedSCV2: [],
-      // mappedSCV3: [],
+      flippedAxes: {}, // e.g., { Age: true, Score: false }
+
       constraints: {}, // To store active constraints for all columns
       mappedColumns: {},
       selectedRanges: {}, // Track selection ranges for each column
@@ -211,7 +226,8 @@ export default {
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(sheet);
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: true });
+      const formattedData = XLSX.utils.sheet_to_json(sheet, { raw: false });
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
@@ -223,9 +239,27 @@ export default {
         "Controls",
         "HVAC System",
       ];
+
       this.jsonData = jsonData;
-      this.selectedData = jsonData;
-      this.plotColumns = jsonData;
+      this.selectedData = formattedData;
+      this.plotColumns = jsonData.map((row, rowIndex) => {
+        const formattedRow = formattedData[rowIndex];
+        const merged = {};
+
+        for (const key in row) {
+          const rawVal = row[key];
+          const formattedVal = formattedRow?.[key];
+
+          // If formatted value has a '%' sign, keep it for ticktext or display
+          if (typeof formattedVal === "string" && formattedVal.includes("%")) {
+            merged[key] = formattedVal;
+          } else {
+            merged[key] = rawVal;
+          }
+        }
+
+        return merged;
+      });
 
       // this.removeColumns(excludedColumns);
       // this.addOutputColumns();
@@ -255,6 +289,7 @@ export default {
         line: {
           color: colorValues, // Set color to array of values from the selected column
           colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
+          reversescale: true,
           width: 5,
         },
       };
@@ -357,11 +392,10 @@ export default {
       this.Plotly.Plots.resize("plotContainer");
     },
 
-    stringToValue(columnName, data) {
-      const mapping = this.mappedColumns[columnName]?.find(
-        (item) => item.label === data
-      );
-      return mapping ? mapping.value : null; // Return fallback if not found
+    stringToValue(column, rawValue) {
+      const mapping = this.mappedColumns[column];
+      const match = mapping.find((item) => item.label === rawValue);
+      return match ? match.value : null;
     },
     generateMappings(columnsWithStrings) {
       this.mappedColumns = {};
@@ -415,23 +449,34 @@ export default {
         "Controls",
         "HVAC System",
       ];
-      this.generateMappings(columnsWithStrings);
-      const freshDimensions = Object.keys(this.plotColumns[0]).map((key) => {
-        const isStringColumn = columnsWithStrings.includes(key);
-        return {
-          label: key,
-          values: this.plotColumns.map((row) =>
-            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
-          ),
-          ...(isStringColumn && {
-            tickvals: this.mappedColumns[key].map((item) => item.value),
-            ticktext: this.mappedColumns[key].map((item) => item.label),
-          }),
 
-          // labelfont: { color: "#ffffff" },
-          // tickfont: { color: "#ffffff" },
-        };
-      });
+      this.generateMappings(columnsWithStrings);
+
+      const freshDimensions = Object.keys(this.plotColumns[0]).map(
+        (key, index) => {
+          const isStringColumn = columnsWithStrings.includes(key);
+
+          const values = this.plotColumns.map((row) =>
+            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
+          );
+
+          return {
+            label: key,
+            values,
+            ...(isStringColumn && {
+              tickvals: this.mappedColumns[key].map((item) => item.value),
+              ticktext: this.mappedColumns[key].map((item) => item.label),
+            }),
+
+            ...(index === 7 || index === 8 || index === 9
+              ? { range: [Math.max(...values), Math.min(...values)] }
+              : {}), // Reverse for 8th and 9th dimensions
+            // labelfont: { color: "#ffffff" },
+            // tickfont: { color: "#ffffff" },
+          };
+        }
+      );
+
       var colorScale = 0;
       this.plotColors.forEach((color, index) => {
         if (this.plotColor === color.colorLabel) {
@@ -446,8 +491,12 @@ export default {
           line: {
             color: this.plotColumns.map((row) => row[this.plotAxis]),
             colorscale: colorScale,
-            thickness: 5,
             reversescale: true,
+          },
+          unselected: {
+            line: {
+              color: "#fdfdfd",
+            },
           },
 
           dimensions: freshDimensions,
@@ -478,6 +527,42 @@ export default {
           // Filter data based on all active selections
           this.updateSelectedData(eventData);
         }
+      });
+      myPlot.on("plotly_click", (eventData) => {
+        const labelClicked = eventData.points?.[0]?.dimension?.label;
+        console.log("labelClicked", labelClicked);
+
+        if (labelClicked) {
+          this.toggleAxis(labelClicked);
+        }
+      });
+    },
+    toggleAxis(label) {
+      this.flippedAxes[label] = !this.flippedAxes[label];
+      this.updatePlot();
+    },
+    downloadPlot() {
+      const myPlot = document.getElementById("plotContainer");
+      this.Plotly.downloadImage(myPlot, {
+        format: "png",
+        filename: "plot",
+        height: 500,
+        width: 1400,
+        scale: 1,
+      });
+    },
+
+    getUpdatedDimensions() {
+      return this.dimensions.map((dim) => {
+        const values = dim.values;
+        const range = this.flippedAxes[dim.label]
+          ? [Math.max(...values), Math.min(...values)]
+          : [Math.min(...values), Math.max(...values)];
+
+        return {
+          ...dim,
+          range,
+        };
       });
     },
     removeColumns(excludedColumns) {
