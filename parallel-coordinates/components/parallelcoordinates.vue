@@ -102,9 +102,8 @@
       <UButton
         size="sm"
         color="primary"
-        icon="i-heroicons-arrow-down-on-square"
+        icon="i-heroicons-arrow-down-tray"
         variant="outline"
-        :trailing="true"
         class="flex self-end"
         label="Download Plot"
         @click="downloadPlot()"
@@ -222,7 +221,8 @@ export default {
       // Fetch and parse Excel file data
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
       // const response = await fetch("gefdatacost2.xlsx");
-      const response = await fetch("A23P1_Parametric_Results.csv");
+      // const response = await fetch("A23P1_Parametric_Results.csv");
+      const response = await fetch("A23P1_Parametric Results_Final.csv");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -238,6 +238,7 @@ export default {
         "ERV",
         "Controls",
         "HVAC System",
+        "Solar PV",
       ];
 
       this.jsonData = jsonData;
@@ -448,6 +449,7 @@ export default {
         "ERV",
         "Controls",
         "HVAC System",
+        "Solar PV",
       ];
 
       this.generateMappings(columnsWithStrings);
@@ -468,7 +470,7 @@ export default {
               ticktext: this.mappedColumns[key].map((item) => item.label),
             }),
 
-            ...(index === 7 || index === 8 || index === 9
+            ...(index === 8 || index === 9 || index === 10
               ? { range: [Math.max(...values), Math.min(...values)] }
               : {}), // Reverse for 8th and 9th dimensions
             // labelfont: { color: "#ffffff" },
@@ -627,7 +629,7 @@ td {
   text-align: left;
 }
 .backgroundCont {
-  width: 98%;
+  width: 100%;
 }
 </style>
 <style>

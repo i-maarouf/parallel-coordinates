@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border-b border-gray-200 dark:border-gray-800 w-full px-5 backdrop-blur-md justify-between flex"
+    class="border-b border-gray-200 dark:border-gray-800 w-full px-8 backdrop-blur-md justify-between flex"
   >
     <UHorizontalNavigation :links="links" />
     <div class="developer flex items-center gap-2">

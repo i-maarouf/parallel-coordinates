@@ -9,7 +9,7 @@
       class="header flex items-center justify-between flex-col fixed w-full z-10"
     >
       <div
-        class="mainHeader px-5 py-3 flex items-center justify-between w-full"
+        class="mainHeader px-7 py-3 flex items-center justify-between w-full"
       >
         <div
           class="links text-white text-sm flex items-center justify-between gap-7"
@@ -34,7 +34,7 @@
   background-color: #0d64ef;
 }
 .logo img {
-  width: 150px;
+  width: 120px;
 }
 .link {
   border-radius: 5px;
