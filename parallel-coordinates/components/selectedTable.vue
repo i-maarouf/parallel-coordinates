@@ -18,11 +18,6 @@
       </div>
     </div>
     <UCard class="tableCont" id="tableContainer" tabindex="0">
-      <div class="totalRuns">
-        Showing {{ (this.page - 1) * this.pageCount + 1 }} to
-        {{ Math.min(this.page * this.pageCount, selectedData.length) }} out of
-        {{ selectedData.length }} runs
-      </div>
       <UTable
         :rows="rows"
         v-model="selected"
@@ -41,7 +36,12 @@
           />
         </template> -->
       </UTable>
-      <div class="flex justify-end px-3 py-3.5 border-t items-center gap-4">
+      <div class="flex justify-between px-3 py-3.5 border-t items-center gap-4">
+        <div class="totalRuns">
+          Showing {{ (this.page - 1) * this.pageCount + 1 }} to
+          {{ Math.min(this.page * this.pageCount, selectedData.length) }} out of
+          {{ selectedData.length }} runs
+        </div>
         <UPagination
           v-model="page"
           :page-count="pageCount"
