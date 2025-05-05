@@ -813,4 +813,10 @@ tbody tr:hover {
   /* --tw-bg-opacity: 1; */
   background-color: #fafafa;
 }
+.main-svg,
+.svg-container {
+  height: 550px;
+  max-height: 550px;
+  /* overflow: hidden; */
+}
 </style>
