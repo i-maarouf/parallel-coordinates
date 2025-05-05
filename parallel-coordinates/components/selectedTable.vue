@@ -21,6 +21,7 @@
       <UTable
         :rows="rows"
         v-model="selected"
+        :columns="tableColumns"
         v-if="selectedData.length > 0"
         :loading="selectedData ? false : true"
         :loading-state="{
@@ -40,7 +41,7 @@
         <div class="totalRuns">
           Showing {{ (this.page - 1) * this.pageCount + 1 }} to
           {{ Math.min(this.page * this.pageCount, selectedData.length) }} out of
-          {{ selectedData.length }} runs
+          {{ selectedData.length }} scenarios
         </div>
         <UPagination
           v-model="page"
@@ -76,6 +77,15 @@ export default {
       return this.selectedData.map((item) => ({
         ...item,
       }));
+    },
+    tableColumns() {
+      if (!this.formattedData.length) return [];
+      return Object.keys(this.formattedData[0])
+        .filter((key) => key !== "__index")
+        .map((key) => ({
+          key,
+          label: key,
+        }));
     },
     rows() {
       const start = (this.page - 1) * this.pageCount;

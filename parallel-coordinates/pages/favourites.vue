@@ -85,10 +85,12 @@ export default {
     },
     columns() {
       if (this.rows.length === 0) return []; // Prevent Object.keys(undefined)
-      return Object.keys(this.rows[0]).map((key) => ({
-        key,
-        label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "),
-      }));
+      return Object.keys(this.rows[0])
+        .filter((key) => key !== "__index")
+        .map((key) => ({
+          key,
+          label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "),
+        }));
     },
   },
   methods: {
