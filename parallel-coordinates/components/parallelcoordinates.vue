@@ -200,7 +200,12 @@ export default {
         "TEUI kWh/m2",
       ],
       flippedAxes: {}, // e.g., { Age: true, Score: false }
-
+      excludedColumns: [
+        "Electricity kWh",
+        "Natural Gas kWh",
+        "Total Energy kWh",
+        "__index",
+      ],
       constraints: {}, // To store active constraints for all columns
       mappedColumns: {},
       selectedRanges: {}, // Track selection ranges for each column
@@ -245,7 +250,7 @@ export default {
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
-      // const excludedColumns = ["ERV Eff"];
+
       const columnsWithStrings = [
         "Air Leakage",
         "LPD",
@@ -279,7 +284,9 @@ export default {
 
       // this.removeColumns(excludedColumns);
       // this.updateOutputColumns();
-      this.dimensionKeys = Object.keys(this.plotColumns[0]); // Maps Plotly dimension index to column names
+      this.dimensionKeys = Object.keys(this.plotColumns[0]).filter(
+        (key) => !this.excludedColumns.includes(key)
+      ); // Maps Plotly dimension index to column names
 
       this.generateMappings(columnsWithStrings);
       this.renderPlot();
@@ -340,6 +347,7 @@ export default {
             10
           );
           const columnName = this.dimensionKeys[dimensionIndex];
+
           const value = row[columnName];
           if (this.mappedColumns[columnName]) {
             // Handle string columns
@@ -467,7 +475,7 @@ export default {
       this.generateMappings(columnsWithStrings);
 
       const freshDimensions = Object.keys(this.plotColumns[0])
-        .filter((key) => key !== "__index")
+        .filter((key) => !this.excludedColumns.includes(key))
         .map((key, index) => {
           const isStringColumn = columnsWithStrings.includes(key);
           const isPercentColumn = key.includes("LPD") || key.includes("ERV");
@@ -485,7 +493,7 @@ export default {
 
             return val;
           });
-          const shouldReverse = index >= 9 && index <= 13;
+          const shouldReverse = index >= 8 && index <= 10;
 
           return {
             label:
@@ -622,13 +630,7 @@ export default {
         };
       });
     },
-    removeColumns(excludedColumns) {
-      this.plotColumns.forEach((row) => {
-        excludedColumns.forEach((col) => {
-          delete row[col]; // Remove excluded columns from the data
-        });
-      });
-    },
+
     updateOutputColumns() {
       const computedColumns = [
         "TEUI kWh/m²",
@@ -660,7 +662,7 @@ export default {
       this.formattedData = this.plotColumns.map((row, index) => {
         const formattedRow = {};
         for (const key in row) {
-          if (key === "__index") continue; // Don't show __index in table
+          if (this.excludedColumns.includes(key)) continue; // Don't show __index in table
 
           let value = row[key];
           if (typeof value === "number") {
