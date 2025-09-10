@@ -4,6 +4,9 @@ export const useArrayStore = defineStore("arrayStore", {
   state: () => ({
     myArray: [],
     selectedRows: [],
+    scenario1: {},
+    scenario2: {},
+    dataSet: [],
   }),
   actions: {
     addItem(item) {
@@ -17,6 +20,15 @@ export const useArrayStore = defineStore("arrayStore", {
     },
     setSelectedRows(rows) {
       this.selectedRows = rows;
+    },
+    setDataSet(data) {
+      this.dataSet = data;
+    },
+    addScenario1(scenario) {
+      this.scenario1 = scenario;
+    },
+    addScenario2(scenario) {
+      this.scenario2 = scenario;
     },
   },
 });

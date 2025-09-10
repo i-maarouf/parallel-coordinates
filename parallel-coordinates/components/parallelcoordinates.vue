@@ -106,6 +106,7 @@
     </div>
     <div
       id="plotContainer"
+      ref="plot"
       class="flex flex-col-reverse"
       style="width: 100%; height: 100%"
     >
@@ -171,6 +172,10 @@ export default {
           colorName: "Hot",
           colorLabel: "Hot",
         },
+        {
+          colorName: "Bluered",
+          colorLabel: "Blue/Red",
+        },
         // {
         //   colorName: "Blackbody",
         //   colorLabel: "Blackbody",
@@ -187,17 +192,13 @@ export default {
         //   colorName: "Earth",
         //   colorLabel: "Earth",
         // },
-        {
-          colorName: "Bluered",
-          colorLabel: "Blue/Red",
-        },
       ],
       plotAxes: [
         "GHG Saving%",
         "En Saving %",
-        "GHGI kgCO2/m2",
-        "TEDI kWh/m2",
-        "TEUI kWh/m2",
+        "GHGI kgCO2/m²",
+        "TEDI kWh/m²",
+        "TEUI kWh/m²",
       ],
       flippedAxes: {}, // e.g., { Age: true, Score: false }
       excludedColumns: [
@@ -279,9 +280,11 @@ export default {
         }
         // Assign row index for later reference
         merged.__index = rowIndex;
+
         return merged;
       });
 
+      this.storeDataSet();
       // this.removeColumns(excludedColumns);
       // this.updateOutputColumns();
       this.dimensionKeys = Object.keys(this.plotColumns[0]).filter(
@@ -299,6 +302,11 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
+    async storeDataSet() {
+      if (this.arrayStore.dataSet.length == 0) {
+        this.arrayStore.setDataSet(this.plotColumns);
+      }
+    },
     updatePlotColor() {
       var myPlot = document.getElementById("plotContainer");
       var plotColorLabel = this.plotColor;
@@ -430,6 +438,10 @@ export default {
       this.applyPlotChanges();
       // this.isOpen = false;
     },
+    resetSelectedRows() {
+      this.selectedData = this.formattedData;
+      this.renderPlot();
+    },
     resetPlot() {
       this.selectedData = this.formattedData;
       this.selectedRanges = {};
@@ -558,7 +570,6 @@ export default {
           customdata: this.plotColumns,
         },
       ];
-
       // Reinitialize the plot
       this.Plotly.newPlot(myPlot, freshPlotData, this.layout, config);
 
@@ -692,7 +703,6 @@ export default {
     },
     highlightSelectedRows() {
       const myPlot = document.getElementById("plotContainer");
-
       if (!myPlot || !this.Plotly || !Array.isArray(this.plotColumns)) return;
 
       const colorKey = this.plotAxis;
@@ -700,37 +710,94 @@ export default {
         console.error("plotAxis is not defined");
         return;
       }
+      let colorLabel = this.plotColor;
+      this.plotColors.forEach((color, index) => {
+        if (colorLabel === color.colorLabel) {
+          colorLabel = color.colorName;
+        }
+      });
+
+      const selectedIndices = Array.isArray(this.selectedRowIndex)
+        ? this.selectedRowIndex
+        : [];
 
       const originalColorValues = this.plotColumns.map(
         (row) => row?.[colorKey] ?? 0
       );
-      const selectedIndices = Array.isArray(this.selectedRowIndex)
-        ? this.selectedRowIndex
-        : [];
+
+      const dataMin = Math.min(...originalColorValues);
+      const dataMax = Math.max(...originalColorValues);
 
       const colorValues = this.plotColumns.map((_, index) =>
         selectedIndices.includes(index) ? originalColorValues[index] : -1
       );
 
-      const viridisWithGray = [
-        [-1, "#d3d3d3"], // gray for unselected
-        [0, "#440154"],
-        [0.111, "#482878"],
-        [0.222, "#3E4A89"],
-        [0.333, "#31688E"],
-        [0.444, "#26838F"],
-        [0.555, "#1F9D8A"],
-        [0.666, "#6CCE59"],
-        [0.777, "#B6DE2B"],
-        [0.888, "#FDE725"],
-        [1, "#FFFFE0"],
-      ];
+      // Fallback color scales for specific names
+      const fallbackScales = {
+        Jet: [
+          [0.0, "#00007F"],
+          [0.125, "#0000FF"],
+          [0.25, "#007FFF"],
+          [0.375, "#00FFFF"],
+          [0.5, "#7FFF7F"],
+          [0.625, "#FFFF00"],
+          [0.75, "#FF7F00"],
+          [0.875, "#FF0000"],
+          [1.0, "#fdfdfd"],
+        ],
+        Hot: [
+          [0.0, "#0b0000"],
+          [0.2, "#8c0000"],
+          [0.4, "#ff0000"],
+          [0.6, "#ff8c00"],
+          [0.8, "#ffff00"],
+          [1.0, "#fdfdfd"],
+        ],
+        Portland: [
+          [0.0, "#1c4c93"],
+          [0.2, "#3697a2"],
+          [0.4, "#f2cd39"],
+          [0.6, "#f39737"],
+          [0.8, "#e14a27"],
+          [1.0, "#fdfdfd"],
+        ],
+        Bluered: [
+          [0.0, "#2414e9"],
+          [0.2, "#510db6"],
+          [0.4, "#84058d"],
+          [0.6, "#b9005e"],
+          [0.8, "#eb0026"],
+          [1.0, "#fdfdfd"],
+        ],
+        YlOrRd: [
+          [0.0, "#ad0026"],
+          [0.2, "#ec2d20"],
+          [0.4, "#f6903e"],
+          [0.6, "#fad06b"],
+          [0.8, "#fdf1ac"],
+          [1.0, "#fdfdfd"],
+        ],
+        YlGnBu: [
+          [0.0, "#162a79"],
+          [0.2, "#3393c1"],
+          [0.4, "#6fc8bc"],
+          [0.6, "#d4eec1"],
+          [0.8, "#fdfeda"],
+          [1.0, "#fdfdfd"],
+        ],
+      };
+
+      // Dynamically construct color scale with gray at start or use fallback
+
+      const colorScale = fallbackScales[colorLabel];
 
       this.Plotly.restyle(
         myPlot,
         {
           "line.color": [colorValues],
-          "line.colorscale": "Viridis",
+          "line.colorscale": [colorScale],
+          "line.cmin": dataMin,
+          "line.cmax": dataMax,
           "line.reversescale": [true],
         },
         [0]
@@ -752,22 +819,22 @@ export default {
         this.layout.plot_bgcolor = newMode === "dark" ? "#333333" : "#f0f0f0";
       }
     },
-    // arrayStore: {
-    //   handler(newVal) {
-    //     console.log("arrayStore", Array.isArray(newVal.selectedRows));
-    //     console.log("arrayStore", newVal.selectedRows);
+    arrayStore: {
+      handler(newVal) {
+        console.log("arrayStore", Array.isArray(newVal.selectedRows));
+        console.log("arrayStore", newVal.selectedRows);
 
-    //     this.selectedRowIndex = newVal.selectedRows.map((row) => row.__index);
-    //     console.log("this.selectedRowIndex", this.selectedRowIndex);
-    //     if (this.selectedRowIndex.length > 0) {
-    //       this.highlightSelectedRows();
-    //     }
-    //     if (this.selectedRowIndex.length === 0) {
-    //       this.resetPlot();
-    //     }
-    //   },
-    //   deep: true,
-    // },
+        this.selectedRowIndex = newVal.selectedRows.map((row) => row.__index);
+        console.log("this.selectedRowIndex", this.selectedRowIndex);
+        if (this.selectedRowIndex.length > 0) {
+          this.highlightSelectedRows();
+        }
+        if (this.selectedRowIndex.length === 0 && this.plotColumns.length > 0) {
+          this.resetPlot();
+        }
+      },
+      deep: true,
+    },
   },
 };
 </script>

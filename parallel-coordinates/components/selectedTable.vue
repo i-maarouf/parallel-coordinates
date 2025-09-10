@@ -22,6 +22,10 @@
         :rows="rows"
         v-model="selected"
         :columns="tableColumns"
+        :sort="{
+          column: 'TEUI kWh/m²',
+          direction: 'desc',
+        }"
         v-if="selectedData.length > 0"
         :loading="selectedData ? false : true"
         :loading-state="{
@@ -68,6 +72,10 @@ export default {
       page: 1,
       pageCount: 20,
       selected: [],
+      sort: {
+        column: "TEUI kWh/m²",
+        direction: "desc",
+      },
       loading: false,
       favouritesArr: [],
     };

@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/tcenergy.png" alt="" />
+          <img src="../public/tcenergy.png" width="200px" alt="" />
         </div>
       </div>
       <HorizontalNavigation />

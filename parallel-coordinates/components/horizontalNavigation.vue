@@ -28,7 +28,7 @@ const links = [
       label: "Scenario Comparison",
       icon: "i-heroicons-arrows-right-left",
       disabled: true,
-      to: "/",
+      to: "/compare",
     },
     {
       label: "Settings",

@@ -8,7 +8,7 @@
       "
     >
       <div class="p-1 imgCont">
-        <img src="/TCtowerLogo.jpeg" width="200px" alt="" srcset="" />
+        <img src="/tcenergy.png" width="200px" alt="" srcset="" />
       </div>
       <UDivider />
 

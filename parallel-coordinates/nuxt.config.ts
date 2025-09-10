@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@nuxthub/core",
     "nuxt-tour",
     "@nuxtjs/supabase",
+    "nuxt-charts",
   ],
   supabase: {
     // Options
