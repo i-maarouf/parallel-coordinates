@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to TC Energy Tower Retrofit Decision Tool.
+          Welcome to Deep Energy Pathway Feasibility Study.
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -75,19 +75,19 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">TC Energy Tower</div>
-                  <img src="../public/TC_Energy_Tower.jpeg" alt="" />
+                  <div class="text-center">Operations Centre</div>
+                  <img src="../public/1-Operations Centre.jpeg" alt="" />
                 </div>
               </UCard>
-              <!-- <UCard
+              <UCard
                 :class="
                   housingSelected == 2 ? 'housing selectedHouse' : 'housing '
                 "
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Fire Station</div>
-                  <img src="../public/fire_station.jpeg" alt="" />
+                  <div class="text-center">Fire Hall Headquarters</div>
+                  <img src="../public/2-Fire Hall Headquarters.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -97,8 +97,8 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Shaw Centre</div>
-                  <img src="../public/shaw_centre.jpeg" alt="" />
+                  <div class="text-center">Townhall</div>
+                  <img src="../public/3-Townhall.png" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -108,10 +108,43 @@
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">City Hall</div>
-                  <img src="../public/city_hall.jpeg" alt="" />
+                  <div class="text-center">Civic Rec Centre</div>
+                  <img src="../public/4-Civic Rec Centre.png" alt="" />
                 </div>
-              </UCard> -->
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 5 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(5)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">McKinney Centre</div>
+                  <img src="../public/5-McKinney Centre.jpg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 6 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(6)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Central Public Library</div>
+                  <img src="../public/6-Central Public Library.jpg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 7 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(7)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Brooklin Community Centre</div>
+                  <img src="../public/7-Brooklin Community Centre.png" alt="" />
+                </div>
+              </UCard>
             </div>
           </div>
 
@@ -312,7 +345,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #0d64ef;
+  background-color: #0c2955;
 }
 /* .step1::after {
   content: "";

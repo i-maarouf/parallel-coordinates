@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/tcenergy.png" width="200px" alt="" />
+          <img src="../public/whitby_logo_blue.jpeg" width="200px" alt="" />
         </div>
       </div>
       <HorizontalNavigation />
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #0d64ef;
+  background-color: #0c2955;
 }
 .logo img {
-  width: 120px;
+  width: 80px;
 }
 .link {
   border-radius: 5px;

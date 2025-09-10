@@ -219,7 +219,7 @@ export default {
     window.addEventListener("resize", this.resizePlot);
 
     this.layout = reactive({
-      title: "TC Energy Tower Retrofit Decision Tool",
+      title: "Deep Energy Pathway Feasibility Study",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
