@@ -19,6 +19,11 @@ const links = [
       to: "/dashboard",
     },
     {
+      label: "Retrofit Planner",
+      icon: "i-heroicons-chart-bar",
+      to: "/retrofit-planner",
+    },
+    {
       label: "Favourites",
       icon: "i-heroicons-star",
       to: "/favourites",
@@ -30,6 +35,7 @@ const links = [
       disabled: true,
       to: "/compare",
     },
+
     {
       label: "Settings",
       icon: "i-heroicons-cog-8-tooth",
