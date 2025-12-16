@@ -101,6 +101,7 @@
 <script>
 import * as XLSX from "xlsx";
 import { reactive, watch } from "vue";
+import { houseSelectStore } from "../stores/houseSelectStore";
 
 export default {
   data() {
@@ -110,6 +111,8 @@ export default {
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
+      houseStore: houseSelectStore(),
+      selectedHouse: {},
       isOpen: false,
       cost: 35,
       energy: 25,
@@ -117,7 +120,7 @@ export default {
       GHG2: 6,
       plotColor: "Jet",
       wallRValue: 10,
-      plotAxis: "EUI Savings %",
+      plotAxis: "Capital Cost ($)",
       plotColors: ["Jet", "YlOrRd", "Portland", "Hot", "Bluered"],
       plotColorss: [
         {
@@ -177,11 +180,15 @@ export default {
       jsonData: [], // Raw data for filtering
     };
   },
+
   async mounted() {
     window.addEventListener("resize", this.resizePlot);
-
+    this.getHouseSelection();
     this.layout = reactive({
-      title: "City of Saskatoon Deep Retrofit Decision Tool",
+      title:
+        "City of Saskatoon Deep Retrofit Decision Tool" +
+        " - " +
+        this.selectedHouse.name,
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
@@ -203,7 +210,7 @@ export default {
       // Fetch and parse Excel file data
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
       // const response = await fetch("gefdatacost2.xlsx");
-      const response = await fetch("gefdatacostFinal.xlsx");
+      const response = await fetch(this.selectedHouse.fileName);
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -212,7 +219,7 @@ export default {
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
 
-      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+      const columnsWithStrings = this.selectedHouse.columnsWithStrings;
       this.jsonData = jsonData;
       this.selectedData = jsonData;
 
@@ -301,6 +308,75 @@ export default {
       this.plotColor = plotColorLabel;
 
       // this.resetPlot();
+    },
+    getHouseSelection() {
+      const houseOptions = [
+        {
+          number: 1,
+          name: "B2 - Lakewood Civic Centre",
+          fileName: "B2_PP_S1_wcost.xlsx",
+          columnsWithStrings: [
+            "ERV Y/N",
+            "DHW HP",
+            "Solar",
+            "Heating",
+            "Short Term",
+            "Min A",
+            "Min B",
+            "NZ",
+          ],
+        },
+        {
+          number: 2,
+          name: "B3 - Lawson Civic Centre",
+          fileName: "B3_PP_S1_wcost.xlsx",
+          columnsWithStrings: [
+            "ERV Y/N",
+            "DHW HP",
+            "Solar",
+            "Heating",
+            "Short Term",
+            "Min A",
+            "Min B",
+            "NZ",
+          ],
+        },
+        {
+          number: 3,
+          name: "B9 - City Hall",
+          fileName: "B9_PP_S1_wcost.xlsx",
+          columnsWithStrings: [
+            "ERV Y/N",
+            "DHW HP",
+            "Solar",
+            "System",
+            "Heating",
+            "Short Term",
+            "Min A",
+            "Min B",
+            "NZ",
+          ],
+        },
+        {
+          number: 4,
+          name: "B17 - Fire Hall 6",
+          fileName: "B17_PP_S1_wcost.xlsx",
+          columnsWithStrings: [
+            "ERV Y/N",
+            "DHW HP",
+            "Solar",
+            "Heating",
+            "Short Term",
+            "Min A",
+            "Min B",
+            "NZ",
+          ],
+        },
+      ];
+      const selectedHouseNumber = this.houseStore.houseSelected;
+      this.selectedHouse = houseOptions.find(
+        (house) => house.number === selectedHouseNumber
+      );
     },
     updateSelectedData(eventData) {
       if (eventData && eventData[0]) {
@@ -476,7 +552,7 @@ export default {
       this.Plotly.purge(myPlot);
 
       // Prepare fresh data and layout
-      const columnsWithStrings = ["HVAC", "SOG R-Value", "CMHC MLI"];
+      const columnsWithStrings = this.selectedHouse.columnsWithStrings;
       this.generateMappings(columnsWithStrings);
       const freshDimensions = Object.keys(this.jsonData[0]).map((key) => {
         const isStringColumn = columnsWithStrings.includes(key);

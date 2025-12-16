@@ -70,46 +70,54 @@
             >
               <UCard
                 :class="
-                  housingSelected == 1 ? 'housing selectedHouse' : 'housing '
+                  this.houseStore.houseSelected == 1
+                    ? 'housing selectedHouse'
+                    : 'housing '
                 "
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Vic Rempel</div>
-                  <img src="../public/Vic_Rempel.jpeg" alt="" />
+                  <div class="text-center">B2 - Lakewood Civic Centre</div>
+                  <img src="../public/lakewood.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
                 :class="
-                  housingSelected == 2 ? 'housing selectedHouse' : 'housing '
+                  this.houseStore.houseSelected == 2
+                    ? 'housing selectedHouse'
+                    : 'housing '
                 "
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Fire Station</div>
-                  <img src="../public/fire_station.jpeg" alt="" />
+                  <div class="text-center">B3 - Lawson Civic Centre</div>
+                  <img src="../public/Lawson.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
                 :class="
-                  housingSelected == 3 ? 'housing selectedHouse' : 'housing '
+                  this.houseStore.houseSelected == 3
+                    ? 'housing selectedHouse'
+                    : 'housing '
                 "
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Shaw Centre</div>
-                  <img src="../public/shaw_centre.jpeg" alt="" />
+                  <div class="text-center">B9 - City Hall</div>
+                  <img src="../public/City__Hall.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
                 :class="
-                  housingSelected == 4 ? 'housing selectedHouse' : 'housing '
+                  this.houseStore.houseSelected == 4
+                    ? 'housing selectedHouse'
+                    : 'housing '
                 "
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">City Hall</div>
-                  <img src="../public/city_hall.jpeg" alt="" />
+                  <div class="text-center">B17 - Fire Hall 6</div>
+                  <img src="../public/Firehall6.jpeg" alt="" />
                 </div>
               </UCard>
             </div>
@@ -183,16 +191,17 @@
   </div>
 </template>
 <script>
+import { houseSelectStore } from "../stores/houseSelectStore";
 definePageMeta({
   layout: "custom",
 });
 export default {
   data() {
     return {
-      housingSelected: 0,
+      // housingSelected: 0,
       isOpen: true,
       stepper: 1,
-
+      houseStore: houseSelectStore(),
       climateZone: "7A",
       climateCity: "Calgary",
       area: 1200,
@@ -225,7 +234,8 @@ export default {
         : null;
     },
     houseSelect(number) {
-      this.housingSelected = number;
+      this.houseStore.houseSelect(number);
+
       // this.selected=true;
     },
     handlePrev() {
@@ -240,7 +250,7 @@ export default {
     },
     handleDisable() {
       if (this.stepper == 1) {
-        if (this.housingSelected == 0) {
+        if (this.houseStore.houseSelected == 0) {
           return true;
         } else return false;
       } else if (this.stepper == 2) {

@@ -75,7 +75,7 @@ export default {
       });
       return this.selectedData.map((item) => ({
         ...item,
-        "Premium $": formatter.format(item["Premium $"]),
+        "Capital Cost ($)": formatter.format(item["Capital Cost ($)"]),
       }));
     },
     rows() {
