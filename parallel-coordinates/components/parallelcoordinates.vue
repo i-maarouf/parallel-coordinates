@@ -1,7 +1,7 @@
 <template>
   <div class="backgroundCont flex flex-col">
     <NuxtTour />
-    <div class="flex justify-end gap-3" v-if="Plotly">
+    <div class="flex justify-end gap-3 my-4" v-if="Plotly">
       <UButton
         size="sm"
         color="primary"
@@ -72,7 +72,7 @@
         <UFormGroup label="Walls" class="p-2" name="walls">
           <URange :min="0" :max="100" v-model="wallRValue" disabled />
         </UFormGroup>
-        <div class="grid grid-cols-1 p-2">
+        <div class="grid grid-cols-1 p-2 gap-3">
           <UButton
             icon="i-heroicons-check"
             size="sm"
@@ -93,7 +93,21 @@
         <USkeleton class="h-96 w-full" />
       </div>
     </div>
-    <div id="plotContainer" style="width: 100%; height: 100%"></div>
+    <div
+      id="plotContainer"
+      class="flex flex-col-reverse"
+      style="width: 100%; height: 100%"
+    >
+      <UButton
+        size="sm"
+        color="primary"
+        icon="i-heroicons-arrow-down-tray"
+        variant="outline"
+        class="flex self-end"
+        label="Download Plot"
+        @click="downloadPlot()"
+      />
+    </div>
     <SelectedTable :selectedData="selectedData" />
   </div>
 </template>
@@ -164,14 +178,7 @@ export default {
           colorLabel: "Blue/Red",
         },
       ],
-      plotAxes: [
-        "EUI Savings %",
-        "EUI (kWh/m2)",
-        "GHG Savings %",
-        "GHGI (kg/m2)",
-        "Peak kWe",
-        "Premium $",
-      ],
+      plotAxes: ["EUI", "GHGI", "Capital Cost ($)"],
       // mappedSCV2: [],
       // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
@@ -542,6 +549,16 @@ export default {
         }));
       });
     },
+    downloadPlot() {
+      const myPlot = document.getElementById("plotContainer");
+      this.Plotly.downloadImage(myPlot, {
+        format: "png",
+        filename: "plot",
+        height: 500,
+        width: 1400,
+        scale: 1,
+      });
+    },
     // Method to reset the parallel coordinates plot
     resetPlot() {
       const myPlot = document.getElementById("plotContainer");
@@ -578,6 +595,12 @@ export default {
             colorscale: this.plotColor,
             width: 5,
           },
+          unselected: {
+            line: {
+              color: "#fff",
+            },
+          },
+
           dimensions: freshDimensions,
           customdata: this.jsonData,
         },
