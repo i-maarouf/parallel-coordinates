@@ -1,7 +1,16 @@
 <template>
   <div class="backgroundCont flex flex-col">
     <NuxtTour />
-    <div class="flex justify-end gap-3 my-4" v-if="Plotly">
+    <div class="flex justify-end gap-3 my-2" v-if="Plotly">
+      <UButton
+        size="sm"
+        color="primary"
+        icon="i-heroicons-arrow-down-tray"
+        variant="outline"
+        class="flex self-end"
+        label="Download Plot"
+        @click="downloadPlot()"
+      />
       <UButton
         size="sm"
         color="primary"
@@ -97,17 +106,7 @@
       id="plotContainer"
       class="flex flex-col-reverse"
       style="width: 100%; height: 100%"
-    >
-      <UButton
-        size="sm"
-        color="primary"
-        icon="i-heroicons-arrow-down-tray"
-        variant="outline"
-        class="flex self-end"
-        label="Download Plot"
-        @click="downloadPlot()"
-      />
-    </div>
+    ></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
 </template>
