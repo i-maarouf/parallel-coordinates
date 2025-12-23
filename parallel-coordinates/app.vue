@@ -22,8 +22,7 @@
           </template>
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
-              This version of the app is for demonstration purposes only for the
-              RFP-18-2025 Deep Energy Pathway Feasibility Study Proposal.
+              This version of the app is for demonstration purposes only.
             </div>
 
             <UButton

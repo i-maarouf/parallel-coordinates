@@ -82,8 +82,14 @@ export default {
   },
   computed: {
     formattedData() {
+      const formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0, // Adjust this if decimals are needed
+      });
       return this.selectedData.map((item) => ({
         ...item,
+        "Premium $": formatter.format(item["Premium $"]),
       }));
     },
     tableColumns() {

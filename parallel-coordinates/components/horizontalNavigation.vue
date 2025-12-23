@@ -3,10 +3,10 @@
     class="border-b border-gray-200 dark:border-gray-800 w-full px-8 backdrop-blur-md justify-between flex"
   >
     <UHorizontalNavigation :links="links" />
-    <div class="developer flex items-center gap-2">
+    <!-- <div class="developer flex items-center gap-2">
       <div class="text">Developed by</div>
       <img src="/Bilmar_logo1.png" width="100px" alt="" srcset="" />
-    </div>
+    </div> -->
     <!-- <NuxtTour /> -->
   </div>
 </template>
@@ -18,11 +18,11 @@ const links = [
       icon: "i-heroicons-chart-bar-square",
       to: "/dashboard",
     },
-    {
-      label: "Retrofit Planner",
-      icon: "i-heroicons-chart-bar",
-      to: "/retrofit-planner",
-    },
+    // {
+    //   label: "Retrofit Planner",
+    //   icon: "i-heroicons-chart-bar",
+    //   to: "/retrofit-planner",
+    // },
     {
       label: "Favourites",
       icon: "i-heroicons-star",

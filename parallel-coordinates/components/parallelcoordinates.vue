@@ -1,6 +1,6 @@
 <template>
   <div class="backgroundCont flex flex-col">
-    <!-- <NuxtTour /> -->
+    <NuxtTour />
     <div class="flex justify-end gap-3 my-4" v-if="Plotly">
       <UButton
         size="sm"
@@ -43,26 +43,25 @@
         </div>
         <div class="grid grid-cols-2">
           <UFormGroup label="GHG Rates" class="p-2" name="GHG">
-            <UInput v-model="GHG" type="number" />
+            <UInput v-model="GHG" type="number" disabled />
           </UFormGroup>
           <UFormGroup label="GHG Rates" class="p-2" name="GHG2">
-            <UInput v-model="GHG2" type="number" />
+            <UInput v-model="GHG2" type="number" disabled />
           </UFormGroup>
         </div>
         <div class="grid grid-cols-2">
-          <UFormGroup label="Plot Color" class="p-2" name="plotColor">
+          <UFormGroup label="Plot Color" class="p-2" name="GHG">
             <UInputMenu
               v-model="plotColor"
-              :options="plotColors"
-              option-attribute="colorLabel"
+              :options="plotColorss"
               @change="updatePlotColor()"
             >
-              <!-- <template #option="{ option: colors }">
+              <template #option="{ option: colors }">
                 <span class="truncate">{{ colors.colorLabel }}</span>
-              </template> -->
+              </template>
             </UInputMenu>
           </UFormGroup>
-          <UFormGroup label="Colour by Axis" class="p-2" name="plotAxis">
+          <UFormGroup label="Colour by Axis" class="p-2" name="GHG2">
             <UInputMenu
               v-model="plotAxis"
               :options="plotAxes"
@@ -82,17 +81,7 @@
             label="Apply Changes"
             :trailing="true"
             block
-            @click="applyPlotChanges()"
-          />
-          <UButton
-            icon="i-heroicons-arrow-uturn-left"
-            size="sm"
-            color="white"
-            variant="solid"
-            label="Restore Default Values"
-            :trailing="true"
-            block
-            @click="restoreDefaultValues()"
+            @click="isOpen = false"
           />
         </div>
       </div>
@@ -106,7 +95,6 @@
     </div>
     <div
       id="plotContainer"
-      ref="plot"
       class="flex flex-col-reverse"
       style="width: 100%; height: 100%"
     >
@@ -127,8 +115,8 @@
 <script>
 import * as XLSX from "xlsx";
 import { reactive, watch } from "vue";
-import { useArrayStore } from "../stores/useArrayStore";
-import { mapState } from "pinia";
+// import { houseSelectStore } from "../stores/houseSelectStore";
+
 export default {
   data() {
     return {
@@ -137,21 +125,18 @@ export default {
       Plotly: null, // Will hold the Plotly instance
       selectedData: [],
       mappedSCV: [],
+      houseStore: {},
+      selectedHouse: {},
       isOpen: false,
       cost: 35,
       energy: 25,
-      GHG: 0.17,
-      GHG2: 0.19,
+      GHG: 12,
+      GHG2: 6,
       plotColor: "Jet",
-      Area: 108510,
-      calibratedTEUI: 215.938426157997,
-      calibratedGHGI: 38.8483576553635,
       wallRValue: 10,
-      plotAxis: "GHG Saving%",
-      formattedData: [],
-      selectedRowIndex: [],
-      arrayStore: useArrayStore(),
-      plotColors: [
+      plotAxis: "GHG Savings %",
+      plotColors: ["Jet", "YlOrRd", "Portland", "Hot", "Bluered"],
+      plotColorss: [
         {
           colorName: "Jet",
           colorLabel: "Jet",
@@ -172,10 +157,6 @@ export default {
           colorName: "Hot",
           colorLabel: "Hot",
         },
-        {
-          colorName: "Bluered",
-          colorLabel: "Blue/Red",
-        },
         // {
         //   colorName: "Blackbody",
         //   colorLabel: "Blackbody",
@@ -192,34 +173,26 @@ export default {
         //   colorName: "Earth",
         //   colorLabel: "Earth",
         // },
+        {
+          colorName: "Bluered",
+          colorLabel: "Blue/Red",
+        },
       ],
-      plotAxes: [
-        "GHG Saving%",
-        "En Saving %",
-        "GHGI kgCO2/m²",
-        "TEDI kWh/m²",
-        "TEUI kWh/m²",
-      ],
-      flippedAxes: {}, // e.g., { Age: true, Score: false }
-      excludedColumns: [
-        "Electricity kWh",
-        "Natural Gas kWh",
-        "Total Energy kWh",
-        "__index",
-      ],
+      plotAxes: ["EUI Savings %", "EUI (kWh/m2)", "Premium $"],
+      // mappedSCV2: [],
+      // mappedSCV3: [],
       constraints: {}, // To store active constraints for all columns
       mappedColumns: {},
       selectedRanges: {}, // Track selection ranges for each column
       jsonData: [], // Raw data for filtering
-
-      plotColumns: [],
     };
   },
+
   async mounted() {
     window.addEventListener("resize", this.resizePlot);
-
+    this.getHouseSelection();
     this.layout = reactive({
-      title: "Deep Energy Pathway Feasibility Study",
+      title: "CMHC Design Decision Tool",
       width: null,
       autosize: true, // Makes the chart adjust to container size
       responsive: true, // Enables responsive behavior
@@ -241,60 +214,77 @@ export default {
       // Fetch and parse Excel file data
       // const response = await fetch("/Bilmar_Sample_Data.xlsx");
       // const response = await fetch("gefdatacost2.xlsx");
-      // const response = await fetch("A23P1_Parametric_Results.xlsx");
-      const response = await fetch("A23P1_Parametric_Sheet.xlsx");
+      const response = await fetch(this.selectedHouse.fileName);
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: true });
-      this.formattedData = XLSX.utils.sheet_to_json(sheet, { raw: false });
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
       // const colorKey = "Elec Peak kW"; // Change "Age" to any other column name if needed
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
       const colorValues = jsonData.map((row) => row[colorKey]); // Extract values for color scaling
 
-      const columnsWithStrings = [
-        "Air Leakage",
-        "LPD",
-        "ERV",
-        "Controls",
-        "HVAC System",
-        "Solar PV",
-      ];
-
+      const columnsWithStrings = this.selectedHouse.columnsWithStrings;
       this.jsonData = jsonData;
-      this.selectedData = this.formattedData;
-      this.plotColumns = jsonData.map((row, rowIndex) => {
-        const formattedRow = this.formattedData[rowIndex];
-        const merged = {};
-
-        for (const key in row) {
-          const rawVal = row[key];
-          const formattedVal = formattedRow?.[key];
-
-          // If formatted value has a '%' sign, keep it for ticktext or display
-          if (typeof formattedVal === "string" && formattedVal.includes("%")) {
-            merged[key] = parseInt(formattedVal);
-          } else {
-            merged[key] = rawVal;
-          }
-        }
-        // Assign row index for later reference
-        merged.__index = rowIndex;
-
-        return merged;
-      });
-
-      this.storeDataSet();
-      // this.removeColumns(excludedColumns);
-      // this.updateOutputColumns();
-      this.dimensionKeys = Object.keys(this.plotColumns[0]).filter(
-        (key) => !this.excludedColumns.includes(key)
-      ); // Maps Plotly dimension index to column names
+      this.selectedData = jsonData;
 
       this.generateMappings(columnsWithStrings);
-      this.renderPlot();
 
-      this.updateOutputColumns();
+      const dimensions = Object.keys(this.jsonData[0]).map((key) => {
+        const isStringColumn = columnsWithStrings.includes(key);
+        return {
+          label: key,
+          values: this.jsonData.map((row) =>
+            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
+          ),
+          ...(isStringColumn && {
+            tickvals: this.mappedColumns[key].map((item) => item.value),
+            ticktext: this.mappedColumns[key].map((item) => item.label),
+          }),
+          labelfont: { color: "#ffffff" },
+          tickfont: { color: "#ffffff" },
+        };
+      });
+
+      this.dimensionKeys = Object.keys(this.jsonData[0]); // Maps Plotly dimension index to column names
+
+      this.plotData = [
+        {
+          type: "parcoords",
+          line: {
+            color: colorValues, // Set color to array of values from the selected column
+            colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
+            // showscale: true,
+            // cmin: Math.min(...colorValues), // Minimum value for color scaling
+            // cmax: Math.max(...colorValues), // Maximum value for color scaling
+            width: 5,
+          },
+          dimensions: dimensions,
+          customdata: jsonData, // Store the entire jsonData for later access
+        },
+      ];
+
+      // Render plot using Plotly
+      this.Plotly.newPlot(myPlot, this.plotData, this.layout);
+
+      myPlot.on("plotly_restyle", (eventData) => {
+        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
+          /\d+/
+        )[0];
+        // console.log("selectedColumnIndex", selectedColumnIndex);
+        const selectedColumn = dimensions[selectedColumnIndex].label;
+        let selectedRange =
+          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
+        // console.log("SELECTED RANGE", selectedRange);
+
+        if (selectedRange) {
+          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
+        } else {
+          delete this.selectedRanges[selectedColumn]; // Remove if no selection
+        }
+
+        // Filter data based on all active selections
+        this.updateSelectedData(eventData);
+      });
     }
   },
   beforeUnmount() {
@@ -302,27 +292,19 @@ export default {
     window.removeEventListener("resize", this.resizePlot);
   },
   methods: {
-    async storeDataSet() {
-      if (this.arrayStore.dataSet.length == 0) {
-        this.arrayStore.setDataSet(this.plotColumns);
-      }
-    },
-    updatePlotColor() {
+    async updatePlotColor() {
       var myPlot = document.getElementById("plotContainer");
       var plotColorLabel = this.plotColor;
-      console.log("plotColor", this.plotColor);
-
       if (this.plotColor.colorName) {
         var plotColorLabel = this.plotColor.colorLabel;
         this.plotColor = this.plotColor.colorName;
       }
       const colorKey = this.plotAxis; // Change "Age" to any other column name if needed
-      const colorValues = this.plotColumns.map((row) => row[colorKey]); // Extract values for color scaling
+      const colorValues = this.jsonData.map((row) => row[colorKey]); // Extract values for color scaling
       var update = {
         line: {
           color: colorValues, // Set color to array of values from the selected column
           colorscale: this.plotColor, // Choose a color scale, e.g., Viridis, Jet, etc.
-          reversescale: true,
           width: 5,
         },
       };
@@ -330,6 +312,20 @@ export default {
       this.plotColor = plotColorLabel;
 
       // this.resetPlot();
+    },
+    getHouseSelection() {
+      const houseOptions = [
+        {
+          number: 1,
+          name: "41 Brule",
+          fileName: "data.xlsx",
+          columnsWithStrings: ["HVAC"],
+        },
+      ];
+      const selectedHouseNumber = 1;
+      this.selectedHouse = houseOptions.find(
+        (house) => house.number === selectedHouseNumber
+      );
     },
     updateSelectedData(eventData) {
       if (eventData && eventData[0]) {
@@ -347,21 +343,29 @@ export default {
         });
       }
 
+      // console.log("Constraints after update:", this.constraints);
+
       // Filter the dataset based on the constraints
-      const selectedRows = this.plotColumns.filter((row) => {
+      const selectedRows = this.jsonData.filter((row) => {
         return Object.entries(this.constraints).every(([dimension, ranges]) => {
           const dimensionIndex = parseInt(
             dimension.match(/dimensions\[(\d+)\]/)[1],
             10
           );
           const columnName = this.dimensionKeys[dimensionIndex];
-
           const value = row[columnName];
+
+          // console.log(
+          //   `Filtering column: ${columnName}, Value: ${value}, Ranges:`,
+          //   ranges
+          // );
+
           if (this.mappedColumns[columnName]) {
             // Handle string columns
             const mappedValue = this.mappedColumns[columnName].find(
               (item) => item.label === value
             )?.value;
+
             return (
               mappedValue !== undefined &&
               ranges.some((range) => {
@@ -381,241 +385,111 @@ export default {
               })
             );
           } else if (typeof value === "number") {
-            // Apply scaling for percentage-based columns
-            const isSavingsColumn = columnName.includes("Saving");
-            const scaledValue = isSavingsColumn ? value / 100 : value;
+            // Handle numeric columns
             return ranges.some((range) => {
               if (Array.isArray(range[0])) {
+                // Handle nested arrays by checking all ranges within them
                 return range.some(
                   (subRange) =>
                     Array.isArray(subRange) &&
-                    scaledValue >= subRange[0] &&
-                    scaledValue <= subRange[1]
+                    value >= subRange[0] &&
+                    value <= subRange[1]
                 );
               } else if (Array.isArray(range) && range.length === 2) {
-                return scaledValue >= range[0] && scaledValue <= range[1];
+                // Handle non-nested range
+                return value >= range[0] && value <= range[1];
               }
-              return false;
+              return false; // Ignore invalid range formats
             });
           } else {
             return false;
           }
         });
       });
+
+      console.log("Selected Rows:", selectedRows);
+
       // Update selected data
-      this.selectedData = selectedRows
-        .map((row) => this.formattedData[row.__index])
-        .filter(Boolean);
+      this.selectedData = selectedRows;
     },
 
+    // updateSelectedData(eventData) {
+    //   // Parse constraints from the current eventData
+    //   if (eventData && eventData[0]) {
+    //     Object.entries(eventData[0]).forEach(([dimension, range]) => {
+    //       // console.log("range", range);
+
+    //       if (range && range[0]) {
+    //         this.constraints[dimension] = range; // Add/Update constraint for the dimension
+    //       } else {
+    //         delete this.constraints[dimension]; // Remove constraint if invalid
+    //       }
+    //     });
+    //   }
+
+    //   // Process the dataset based on all active constraints
+    //   const selectedRows = this.jsonData.filter((row) => {
+    //     return Object.entries(this.constraints).every(([dimension, range]) => {
+    //       const dimensionIndex = parseInt(
+    //         dimension.match(/dimensions\[(\d+)\]/)[1],
+    //         10
+    //       );
+    //       const columnName = this.dimensionKeys[dimensionIndex];
+    //       const value = row[columnName];
+    //       // console.log("value", value);
+    //       // console.log("type of value", typeof value);
+
+    //       if (typeof value === "string") {
+    //         // console.log("value", value);
+
+    //         // Map text value and compare
+    //         const mappedValue = this.mappedSCV.find(
+    //           (item) => item.label === value
+    //         )?.value;
+    //         return (
+    //           mappedValue !== undefined &&
+    //           mappedValue >= range[0][0] &&
+    //           mappedValue <= range[0][1]
+    //         );
+    //       } else {
+    //         // console.log("value", value);
+
+    //         // Compare numeric values
+    //         return value >= range[0][0] && value <= range[0][1];
+    //       }
+    //     });
+    //   });
+    //   // console.log("selectedRows", selectedRows);
+
+    //   // Update the selected data for the table
+    //   this.selectedData = selectedRows;
+
+    //   // // Debugging: Log active constraints and selected rows
+    //   // console.log("Active Constraints:", this.constraints);
+    //   // console.log("Selected Rows:", this.selectedData);
+    // },
     resizePlot() {
       this.Plotly.Plots.resize("plotContainer");
     },
 
-    stringToValue(column, rawValue) {
-      const mapping = this.mappedColumns[column];
-      const match = mapping.find((item) => item.label === rawValue);
-      return match ? match.value : null;
+    stringToValue(columnName, data) {
+      const mapping = this.mappedColumns[columnName]?.find(
+        (item) => item.label === data
+      );
+      return mapping ? mapping.value : null; // Return fallback if not found
     },
     generateMappings(columnsWithStrings) {
       this.mappedColumns = {};
 
       columnsWithStrings.forEach((column) => {
         const uniqueValues = Array.from(
-          new Set(this.plotColumns.map((row) => row[column]))
+          new Set(this.jsonData.map((row) => row[column]))
         );
         this.mappedColumns[column] = uniqueValues.map((label, index) => ({
           label: label,
           value: index,
         }));
       });
-    },
-
-    // Method to reset the parallel coordinates plot\
-    restoreDefaultValues() {
-      this.GHG = 0.17;
-      this.GHG2 = 0.19;
-      this.applyPlotChanges();
-      // this.isOpen = false;
-    },
-    resetSelectedRows() {
-      this.selectedData = this.formattedData;
-      this.renderPlot();
-    },
-    resetPlot() {
-      this.selectedData = this.formattedData;
-      this.selectedRanges = {};
-      this.constraints = {};
-      // this.GHG = 0.17;
-      // this.GHG2 = 0.19;
-      // Purge the existing graph
-      // this.updateOutputColumns();
-      this.renderPlot();
-      // Prepare fresh data and layout
-    },
-    applyPlotChanges() {
-      // Apply changes to the plot based on user input
-      // var myPlot = document.getElementById("plotContainer");
-      // this.jsonData.forEach((row) => {
-      //   row["GHGI (kg/m2)"] = row["EUI Savings %"] * this.GHG;
-      // });
-
-      this.updateOutputColumns();
-      this.isOpen = false;
-    },
-    renderPlot() {
-      var myPlot = document.getElementById("plotContainer");
-      // this.Plotly.purge(myPlot);
-      var config = {
-        toImageButtonOptions: {
-          format: "svg", // one of png, svg, jpeg, webp
-          filename: "custom_image",
-          height: 500,
-          width: 700,
-          scale: 1, // Multiply title/legend/axis/canvas sizes by this factor
-        },
-      };
-      const columnsWithStrings = [
-        "Air Leakage",
-        "LPD",
-        "ERV",
-        "Controls",
-        "HVAC System",
-        "Solar PV",
-      ];
-
-      this.generateMappings(columnsWithStrings);
-
-      const freshDimensions = Object.keys(this.plotColumns[0])
-        .filter((key) => !this.excludedColumns.includes(key))
-        .map((key, index) => {
-          const isStringColumn = columnsWithStrings.includes(key);
-          const isPercentColumn = key.includes("LPD") || key.includes("ERV");
-          const isSavingsColumn = key.includes("Saving");
-
-          const values = this.plotColumns.map((row) => {
-            let val = isStringColumn
-              ? this.stringToValue(key, row[key])
-              : row[key];
-
-            // Scale savings columns by 1/100 so Plotly can format them as percentages
-            if (isSavingsColumn && typeof val === "number") {
-              val = val / 100;
-            }
-
-            return val;
-          });
-          const shouldReverse = index >= 8 && index <= 10;
-
-          return {
-            label:
-              index == 0
-                ? "Spandrels R<br>(ft²·°F·h/BTU)"
-                : index == 1
-                ? "Glass R<br>(ft²·°F·h/BTU)"
-                : key,
-            values,
-            ...(isStringColumn && {
-              tickvals: this.mappedColumns[key].map((item) => item.value),
-              ticktext: this.mappedColumns[key].map((item) => item.label),
-            }),
-
-            // Handle ERV / LPD (categorical % values, treat as strings with % label)
-            ...(isPercentColumn &&
-              !isSavingsColumn && {
-                tickvals: this.mappedColumns[key].map((item) => item.value),
-                ticktext: this.mappedColumns[key].map((item) => {
-                  const val = item.label;
-                  return typeof val === "number" ? `${val}%` : val;
-                }),
-              }),
-
-            // Let Plotly auto-handle Savings columns, just apply % format
-            ...(isSavingsColumn &&
-              !isStringColumn && {
-                tickformat: ".1%", // Adds % sign without affecting scaling
-              }),
-
-            ...(shouldReverse && {
-              range: [Math.max(...values), Math.min(...values)],
-            }),
-          };
-        });
-      var colorScale = 0;
-      this.plotColors.forEach((color, index) => {
-        if (this.plotColor === color.colorLabel) {
-          colorScale = color.colorName;
-        }
-      });
-      // console.log(
-      //   "this.plotcolor",
-      //   this.plotColumns.map((row) => row[this.plotAxis])
-      // );
-
-      const freshPlotData = [
-        {
-          type: "parcoords",
-          line: {
-            color: this.plotColumns.map((row) => row[this.plotAxis]),
-            colorscale: colorScale,
-            reversescale: true,
-          },
-          unselected: {
-            line: {
-              color: "#fdfdfd",
-            },
-          },
-
-          dimensions: freshDimensions,
-          customdata: this.plotColumns,
-        },
-      ];
-      // Reinitialize the plot
-      this.Plotly.newPlot(myPlot, freshPlotData, this.layout, config);
-
-      myPlot.on("plotly_restyle", (eventData) => {
-        console.log("eventData", eventData);
-        if (!eventData[0].line && !eventData[0].dimensions) {
-          const selectedColumnIndex = Object.keys(eventData[0])[0].match(
-            /\d+/
-          )[0];
-          console.log("selectedColumnIndex", selectedColumnIndex);
-          const selectedColumn = freshDimensions[selectedColumnIndex].label;
-          let selectedRange =
-            eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
-          console.log("SELECTED RANGE", selectedRange);
-
-          if (selectedRange) {
-            this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
-          } else {
-            delete this.selectedRanges[selectedColumn]; // Remove if no selection
-          }
-
-          // Filter data based on all active selections
-          this.updateSelectedData(eventData);
-        }
-        // else if (eventData[0].dimensions) {
-        //   console.log("eventData[0].dimensions", eventData[0].dimensions);
-        //   const labelClicked = eventData.points?.[0]?.dimension?.label;
-        //   console.log("labelClicked", labelClicked);
-
-        //   // if (labelClicked) {
-        //   //   this.toggleAxis(labelClicked);
-        //   // }
-        // }
-      });
-      // myPlot.on("plotly_click", (eventData) => {
-      //   const labelClicked = eventData.points?.[0]?.dimension?.label;
-      //   console.log("labelClicked", labelClicked);
-
-      //   if (labelClicked) {
-      //     this.toggleAxis(labelClicked);
-      //   }
-      // });
-    },
-    toggleAxis(label) {
-      this.flippedAxes[label] = !this.flippedAxes[label];
-      this.updatePlot();
     },
     downloadPlot() {
       const myPlot = document.getElementById("plotContainer");
@@ -627,181 +501,75 @@ export default {
         scale: 1,
       });
     },
+    // Method to reset the parallel coordinates plot
+    resetPlot() {
+      const myPlot = document.getElementById("plotContainer");
+      this.selectedData = this.jsonData;
+      this.selectedRanges = {};
+      this.constraints = {};
+      // Purge the existing graph
+      this.Plotly.purge(myPlot);
 
-    getUpdatedDimensions() {
-      return this.dimensions.map((dim) => {
-        const values = dim.values;
-        const range = this.flippedAxes[dim.label]
-          ? [Math.max(...values), Math.min(...values)]
-          : [Math.min(...values), Math.max(...values)];
-
+      // Prepare fresh data and layout
+      const columnsWithStrings = this.selectedHouse.columnsWithStrings;
+      this.generateMappings(columnsWithStrings);
+      const freshDimensions = Object.keys(this.jsonData[0]).map((key) => {
+        const isStringColumn = columnsWithStrings.includes(key);
         return {
-          ...dim,
-          range,
+          label: key,
+          values: this.jsonData.map((row) =>
+            isStringColumn ? this.stringToValue(key, row[key]) : row[key]
+          ),
+          ...(isStringColumn && {
+            tickvals: this.mappedColumns[key].map((item) => item.value),
+            ticktext: this.mappedColumns[key].map((item) => item.label),
+          }),
+          labelfont: { color: "#ffffff" },
+          tickfont: { color: "#ffffff" },
         };
       });
-    },
 
-    updateOutputColumns() {
-      const computedColumns = [
-        "TEUI kWh/m²",
-        "Electricity kWh",
-        "Natural Gas kWh",
-      ];
-      const outputColumns = ["En Saving %", "GHGI kgCO2/m²", "GHG Saving%"];
-      let enSavingCalculated, GHGCalculated, GHGICalculated1, GHGICalculated2;
-      this.plotColumns.forEach((row) => {
-        enSavingCalculated = row[computedColumns[0]] / this.calibratedTEUI;
-
-        GHGICalculated1 = row[computedColumns[1]] * this.GHG;
-        GHGICalculated2 = row[computedColumns[2]] * this.GHG2;
-        GHGCalculated =
-          (GHGICalculated1 + GHGICalculated2) / this.Area / this.calibratedGHGI;
-        row[outputColumns[0]] = (1 - enSavingCalculated) * 100;
-
-        row[outputColumns[1]] = (GHGICalculated1 + GHGICalculated2) / this.Area;
-        row[outputColumns[2]] = (1 - GHGCalculated) * 100;
-      });
-
-      console.log("plotColumns", this.plotColumns);
-      // this.updateSelectedData();
-      // this.renderPlot();
-      this.updateFormattedData();
-      this.resetPlot();
-    },
-    updateFormattedData() {
-      this.formattedData = this.plotColumns.map((row, index) => {
-        const formattedRow = {};
-        for (const key in row) {
-          if (this.excludedColumns.includes(key)) continue; // Don't show __index in table
-
-          let value = row[key];
-          if (typeof value === "number") {
-            if (key.includes("LPD") || key.includes("ERV")) {
-              value = value.toFixed(0) + "%";
-            } else if (key.includes("Saving")) {
-              value = value.toFixed(1) + "%";
-            } else if (key.includes("kWh")) {
-              value = value.toLocaleString(undefined, {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              });
-            } else if (key.includes("kgCO2")) {
-              value = value.toFixed(2);
-            } else {
-              value = value.toFixed(2);
-            }
-          }
-
-          formattedRow[key] = value;
-        }
-
-        // Include __index internally (for selection/highlighting) but not for table
-        formattedRow.__index = index;
-        return formattedRow;
-      });
-    },
-    highlightSelectedRows() {
-      const myPlot = document.getElementById("plotContainer");
-      if (!myPlot || !this.Plotly || !Array.isArray(this.plotColumns)) return;
-
-      const colorKey = this.plotAxis;
-      if (!colorKey) {
-        console.error("plotAxis is not defined");
-        return;
-      }
-      let colorLabel = this.plotColor;
-      this.plotColors.forEach((color, index) => {
-        if (colorLabel === color.colorLabel) {
-          colorLabel = color.colorName;
-        }
-      });
-
-      const selectedIndices = Array.isArray(this.selectedRowIndex)
-        ? this.selectedRowIndex
-        : [];
-
-      const originalColorValues = this.plotColumns.map(
-        (row) => row?.[colorKey] ?? 0
-      );
-
-      const dataMin = Math.min(...originalColorValues);
-      const dataMax = Math.max(...originalColorValues);
-
-      const colorValues = this.plotColumns.map((_, index) =>
-        selectedIndices.includes(index) ? originalColorValues[index] : -1
-      );
-
-      // Fallback color scales for specific names
-      const fallbackScales = {
-        Jet: [
-          [0.0, "#00007F"],
-          [0.125, "#0000FF"],
-          [0.25, "#007FFF"],
-          [0.375, "#00FFFF"],
-          [0.5, "#7FFF7F"],
-          [0.625, "#FFFF00"],
-          [0.75, "#FF7F00"],
-          [0.875, "#FF0000"],
-          [1.0, "#fdfdfd"],
-        ],
-        Hot: [
-          [0.0, "#0b0000"],
-          [0.2, "#8c0000"],
-          [0.4, "#ff0000"],
-          [0.6, "#ff8c00"],
-          [0.8, "#ffff00"],
-          [1.0, "#fdfdfd"],
-        ],
-        Portland: [
-          [0.0, "#1c4c93"],
-          [0.2, "#3697a2"],
-          [0.4, "#f2cd39"],
-          [0.6, "#f39737"],
-          [0.8, "#e14a27"],
-          [1.0, "#fdfdfd"],
-        ],
-        Bluered: [
-          [0.0, "#2414e9"],
-          [0.2, "#510db6"],
-          [0.4, "#84058d"],
-          [0.6, "#b9005e"],
-          [0.8, "#eb0026"],
-          [1.0, "#fdfdfd"],
-        ],
-        YlOrRd: [
-          [0.0, "#ad0026"],
-          [0.2, "#ec2d20"],
-          [0.4, "#f6903e"],
-          [0.6, "#fad06b"],
-          [0.8, "#fdf1ac"],
-          [1.0, "#fdfdfd"],
-        ],
-        YlGnBu: [
-          [0.0, "#162a79"],
-          [0.2, "#3393c1"],
-          [0.4, "#6fc8bc"],
-          [0.6, "#d4eec1"],
-          [0.8, "#fdfeda"],
-          [1.0, "#fdfdfd"],
-        ],
-      };
-
-      // Dynamically construct color scale with gray at start or use fallback
-
-      const colorScale = fallbackScales[colorLabel];
-
-      this.Plotly.restyle(
-        myPlot,
+      const freshPlotData = [
         {
-          "line.color": [colorValues],
-          "line.colorscale": [colorScale],
-          "line.cmin": dataMin,
-          "line.cmax": dataMax,
-          "line.reversescale": [true],
+          type: "parcoords",
+          line: {
+            color: this.jsonData.map((row) => row[this.plotAxis]),
+            colorscale: this.plotColor,
+            width: 5,
+          },
+          unselected: {
+            line: {
+              color: "#fff",
+            },
+          },
+
+          dimensions: freshDimensions,
+          customdata: this.jsonData,
         },
-        [0]
-      );
+      ];
+
+      // Reinitialize the plot
+      this.Plotly.newPlot(myPlot, freshPlotData, this.layout);
+      myPlot.on("plotly_restyle", (eventData) => {
+        console.log("eventData", eventData);
+        const selectedColumnIndex = Object.keys(eventData[0])[0].match(
+          /\d+/
+        )[0];
+        console.log("selectedColumnIndex", selectedColumnIndex);
+        const selectedColumn = freshDimensions[selectedColumnIndex].label;
+        let selectedRange =
+          eventData[0][`dimensions[${selectedColumnIndex}].constraintrange`];
+        console.log("SELECTED RANGE", selectedRange);
+
+        if (selectedRange) {
+          this.selectedRanges[selectedColumn] = selectedRange[0]; // Store the selected range
+        } else {
+          delete this.selectedRanges[selectedColumn]; // Remove if no selection
+        }
+
+        // Filter data based on all active selections
+        this.updateSelectedData(eventData);
+      });
     },
   },
   computed: {
@@ -819,22 +587,6 @@ export default {
         this.layout.plot_bgcolor = newMode === "dark" ? "#333333" : "#f0f0f0";
       }
     },
-    arrayStore: {
-      handler(newVal) {
-        console.log("arrayStore", Array.isArray(newVal.selectedRows));
-        console.log("arrayStore", newVal.selectedRows);
-
-        this.selectedRowIndex = newVal.selectedRows.map((row) => row.__index);
-        console.log("this.selectedRowIndex", this.selectedRowIndex);
-        if (this.selectedRowIndex.length > 0) {
-          this.highlightSelectedRows();
-        }
-        if (this.selectedRowIndex.length === 0 && this.plotColumns.length > 0) {
-          this.resetPlot();
-        }
-      },
-      deep: true,
-    },
   },
 };
 </script>
@@ -848,14 +600,13 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
-
 th,
 td {
   padding: 8px;
   text-align: left;
 }
 .backgroundCont {
-  width: 100%;
+  width: 98%;
 }
 </style>
 <style>
@@ -869,21 +620,5 @@ line.highlight {
   backdrop-filter: blur(50px);
   border-radius: 20px;
   height: fit-content;
-}
-g.infolayer {
-  transform: translate(0px, -30px);
-}
-g.axis-heading {
-  transform: translate(0px, -15px);
-}
-tbody tr:hover {
-  /* --tw-bg-opacity: 1; */
-  background-color: #fafafa;
-}
-.main-svg,
-.svg-container {
-  height: 550px;
-  max-height: 550px;
-  /* overflow: hidden; */
 }
 </style>

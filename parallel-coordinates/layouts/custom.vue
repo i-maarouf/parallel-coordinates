@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/whitby_logo_blue.jpeg" width="100px" alt="" />
+          <img src="../public/Bilmar_logo2.png" width="150px" alt="" />
         </div>
       </div>
       <!-- <HorizontalNavigation /> -->
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #0c2955;
+  background-color: #104c4d;
 }
 .logo img {
-  width: 80px;
+  width: 120px;
 }
 .linkActive {
   border-radius: 5px;
