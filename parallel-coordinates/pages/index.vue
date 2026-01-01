@@ -75,8 +75,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Operations Centre</div>
-                  <img src="../public/1-Operations Centre.jpeg" alt="" />
+                  <div class="text-center">Activa Sportxplex</div>
+                  <img src="../public/Activa_Sportxplex.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -86,8 +86,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Fire Hall Headquarters</div>
-                  <img src="../public/2-Fire Hall Headquarters.jpg" alt="" />
+                  <div class="text-center">Sportsworld Arena</div>
+                  <img src="../public/Sportsworld_Arena.jpeg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -97,57 +97,12 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Townhall</div>
-                  <img src="../public/3-Townhall.png" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 4 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(4)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Civic Rec Centre</div>
-                  <img src="../public/4-Civic Rec Centre.png" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 5 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(5)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">McKinney Centre</div>
-                  <img src="../public/5-McKinney Centre.jpg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 6 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(6)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Central Public Library</div>
-                  <img src="../public/6-Central Public Library.jpg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 7 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(7)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Brooklin Community Centre</div>
-                  <img src="../public/7-Brooklin Community Centre.png" alt="" />
+                  <div class="text-center">Lions Arena</div>
+                  <img src="../public/Lions_Arena.png" alt="" />
                 </div>
               </UCard>
             </div>
           </div>
-
           <!-- <div class="step2Q flex items-center gap-6" v-if="stepper == 2">
             <UFormGroup label="Climate City" name="climateCity" class="w-1/4">
               <UInputMenu
