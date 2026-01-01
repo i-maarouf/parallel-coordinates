@@ -5,6 +5,15 @@
       <UButton
         size="sm"
         color="primary"
+        icon="i-heroicons-arrow-down-tray"
+        variant="outline"
+        class="flex self-end"
+        label="Download Plot"
+        @click="downloadPlot()"
+      />
+      <UButton
+        size="sm"
+        color="primary"
         variant="outline"
         class="flex self-end"
         label="Choose Default Values"
@@ -109,17 +118,7 @@
       ref="plot"
       class="flex flex-col-reverse"
       style="width: 100%; height: 100%"
-    >
-      <UButton
-        size="sm"
-        color="primary"
-        icon="i-heroicons-arrow-down-tray"
-        variant="outline"
-        class="flex self-end"
-        label="Download Plot"
-        @click="downloadPlot()"
-      />
-    </div>
+    ></div>
     <SelectedTable :selectedData="selectedData" />
   </div>
 </template>
