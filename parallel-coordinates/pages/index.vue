@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to Deep Energy Pathway Feasibility Study.
+          Welcome to GHG Reduction Pathway Study RFP Web App Demo
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -345,7 +345,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #0c2955;
+  background-color: #104c4d;
 }
 /* .step1::after {
   content: "";

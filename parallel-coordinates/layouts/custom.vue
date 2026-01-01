@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/whitby_logo_blue.jpeg" width="100px" alt="" />
+          <img src="../public/client_logo.webp" width="100px" alt="" />
         </div>
       </div>
       <!-- <HorizontalNavigation /> -->
@@ -31,7 +31,7 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #0c2955;
+  background-color: #104c4d;
 }
 .logo img {
   width: 80px;

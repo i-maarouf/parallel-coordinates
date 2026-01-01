@@ -23,7 +23,8 @@
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
               This version of the app is for demonstration purposes only for the
-              RFP-18-2025 Deep Energy Pathway Feasibility Study Proposal.
+              Q25-192 Professional Services –GHG Reduction Pathway Study and
+              Mechanical Systems Review for Community Arenas Proposal.
             </div>
 
             <UButton
