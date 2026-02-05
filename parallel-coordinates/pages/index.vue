@@ -5,7 +5,7 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to GHG Reduction Pathway Study RFP Web App Demo
+          Welcome to the Green House Gas Reduction Feasibility RFP Web App Demo
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -75,8 +75,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Activa Sportxplex</div>
-                  <img src="../public/Activa_Sportxplex.jpeg" alt="" />
+                  <div class="text-center">City Hall</div>
+                  <img src="../public/Colborne_City_Hall.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -86,8 +86,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Sportsworld Arena</div>
-                  <img src="../public/Sportsworld_Arena.jpeg" alt="" />
+                  <div class="text-center">Engineering and Operations Centre</div>
+                  <img src="../public/Colborne_Engineering_and_Operations_Centre.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -97,8 +97,52 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Lions Arena</div>
-                  <img src="../public/Lions_Arena.png" alt="" />
+                  <div class="text-center">Fire Hall</div>
+                  <img src="../public/Colborne_Fire_Hall.jpg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 4 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(4)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Port Colborne Public Library</div>
+                  <img src="../public/Colborne_Public_Library.jpg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 5 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(5)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Roselawn Centre</div>
+                  <img src="../public/Colborne_Roselawn_Centre.png" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 6 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(6)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Vale Health and Wellness Centres (VHWC)</div>
+                  <img src="../public/Colborne_VHWC.jpeg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 7 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(7)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Port Colborne Historical & Marine Museum</div>
+                  <img src="../public/Colborne_Museum.jpg" alt="" />
                 </div>
               </UCard>
             </div>
@@ -300,7 +344,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #104c4d;
+  background-color: #3b5072;
 }
 /* .step1::after {
   content: "";

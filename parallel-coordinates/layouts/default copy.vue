@@ -3,7 +3,7 @@
     <UDashboardPanel :width="300" :resizable="{ min: 200, max: 400 }">
       <UDashboardNavbar>
         <template #left>
-          <img src="/ClientLogo.jpeg" width="150px" alt="" srcset="" />
+          <img src="/Colborne_client_logo.png" width="200px" alt="" srcset="" />
         </template>
       </UDashboardNavbar>
 

@@ -5,7 +5,7 @@
         <UAside :links="links">
           <template #top>
             <div class="p-1 imgCont">
-              <img src="/ClientLogo.jpeg" width="200px" alt="" srcset="" />
+              <img src="/Colborne_client_logo.png" width="200px" alt="" srcset="" />
             </div>
           </template>
 
