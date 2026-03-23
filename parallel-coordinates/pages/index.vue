@@ -5,7 +5,8 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to the Green House Gas Reduction Feasibility RFP Web App Demo
+        Welcome to the Green House Gas Reduction Feasibility RFP Web App Demo 
+
         </div>
         <div class="text-md text-center">
           Choose a propery to begin optimizing the retrofit decisions.
@@ -75,8 +76,8 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">City Hall</div>
-                  <img src="../public/Colborne_City_Hall.jpg" alt="" />
+                  <div class="text-center">Admin Building</div>
+                  <img src="../public/Admin Building.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -86,8 +87,8 @@
                 @click="houseSelect(2)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Engineering and Operations Centre</div>
-                  <img src="../public/Colborne_Engineering_and_Operations_Centre.jpg" alt="" />
+                  <div class="text-center">Beeton Paramedic Station</div>
+                  <img src="../public/Beeton Paramedic Station.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -97,8 +98,8 @@
                 @click="houseSelect(3)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Fire Hall</div>
-                  <img src="../public/Colborne_Fire_Hall.jpg" alt="" />
+                  <div class="text-center">Simcoe Museum</div>
+                  <img src="../public/Simcoe Museum.jpg" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -108,8 +109,8 @@
                 @click="houseSelect(4)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Port Colborne Public Library</div>
-                  <img src="../public/Colborne_Public_Library.jpg" alt="" />
+                  <div class="text-center">Social Housing 25 Napier St</div>
+                  <img src="../public/Social Housing 25 Napier St.png" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -119,8 +120,8 @@
                 @click="houseSelect(5)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Roselawn Centre</div>
-                  <img src="../public/Colborne_Roselawn_Centre.png" alt="" />
+                  <div class="text-center">Social Housing 30 Seventh Lane</div>
+                  <img src="../public/Social Housing 30 Seventh Lane.png" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -130,8 +131,8 @@
                 @click="houseSelect(6)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Vale Health and Wellness Centres (VHWC)</div>
-                  <img src="../public/Colborne_VHWC.jpeg" alt="" />
+                  <div class="text-center">Social Housing 32 Younge St</div>
+                  <img src="../public/Social Housing 32 Younge St.png" alt="" />
                 </div>
               </UCard>
               <UCard
@@ -141,8 +142,41 @@
                 @click="houseSelect(7)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Port Colborne Historical & Marine Museum</div>
-                  <img src="../public/Colborne_Museum.jpg" alt="" />
+                  <div class="text-center">Social Housing 559 King ST</div>
+                  <img src="../public/Social Housing 559 King ST.png" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 8 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(8)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Social Housing 810 Bay St</div>
+                  <img src="../public/Social Housing 810 Bay St.png" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 9 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(9)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Sunset Manor</div>
+                  <img src="../public/Sunset Manor.jpg" alt="" />
+                </div>
+              </UCard>
+              <UCard
+                :class="
+                  housingSelected == 10 ? 'housing selectedHouse' : 'housing '
+                "
+                @click="houseSelect(10)"
+              >
+                <div class="container items-center gap-4 flex flex-col">
+                  <div class="text-center">Trillium Manor</div>
+                  <img src="../public/Trillium Manor.jpg" alt="" />
                 </div>
               </UCard>
             </div>
@@ -344,7 +378,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #3b5072;
+  background-color: #1f3254;
 }
 /* .step1::after {
   content: "";
