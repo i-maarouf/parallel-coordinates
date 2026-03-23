@@ -61,8 +61,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { darkMode } from "#tailwind-config";
-
 const colorMode = useColorMode();
 const isDark = computed({
   get() {

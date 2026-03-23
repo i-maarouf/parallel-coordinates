@@ -1,12 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-04-03",
+   compatibilityDate: "2026-03-23",
+  nitro: {
+    preset: "netlify",
+  },
   devtools: { enabled: false },
   ssr: false,
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
-    "@nuxthub/core",
     "nuxt-tour",
     "@nuxtjs/supabase",
     "nuxt-charts",
