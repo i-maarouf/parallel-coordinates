@@ -8,7 +8,7 @@
       "
     >
       <div class="p-1 imgCont">
-        <img src="/Colborne_client_logo.png" width="200px" alt="" srcset="" />
+        <img src="/client_logo_white.png" width="200px" alt="" srcset="" />
       </div>
       <UDivider />
 
