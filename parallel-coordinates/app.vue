@@ -22,7 +22,7 @@
           </template>
           <div class="flex flex-col items-center justify-center gap-4">
             <div class="text-md align-center">
-         This version of the app is for demonstration purposes only for the 2025-63 - Green House Gas Reduction Feasibility Study for City of Port Colborne Proposal.
+         This version of the app is for demonstration purposes only for the ASHRAE Level III Proposal for Cedar Grove Apartments by SSCHS.
 
             </div>
 

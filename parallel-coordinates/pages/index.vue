@@ -5,10 +5,10 @@
     <UContainer class="2xl:w-3/4 2xl:max-w-7xl w-full max-w-full">
       <div class="text-container py-8">
         <div class="text-xl text-center font-bold">
-          Welcome to the Green House Gas Reduction Feasibility RFP Web App Demo
+          Welcome to the ASHRAE Level III Parametric Energy Modelling Dashboard Demo 
         </div>
         <div class="text-md text-center">
-          Choose a propery to begin optimizing the retrofit decisions.
+          Click on the property to begin optimizing the retrofit decisions.
         </div>
       </div>
       <UCard>
@@ -75,76 +75,11 @@
                 @click="houseSelect(1)"
               >
                 <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">City Hall</div>
-                  <img src="../public/Colborne_City_Hall.jpg" alt="" />
+                  <div class="text-center">Cedar Grove Apartments</div>
+                  <img src="../public/cedar06.jpg" alt="" />
                 </div>
               </UCard>
-              <UCard
-                :class="
-                  housingSelected == 2 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(2)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Engineering and Operations Centre</div>
-                  <img src="../public/Colborne_Engineering_and_Operations_Centre.jpg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 3 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(3)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Fire Hall</div>
-                  <img src="../public/Colborne_Fire_Hall.jpg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 4 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(4)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Port Colborne Public Library</div>
-                  <img src="../public/Colborne_Public_Library.jpg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 5 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(5)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Roselawn Centre</div>
-                  <img src="../public/Colborne_Roselawn_Centre.png" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 6 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(6)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Vale Health and Wellness Centres (VHWC)</div>
-                  <img src="../public/Colborne_VHWC.jpeg" alt="" />
-                </div>
-              </UCard>
-              <UCard
-                :class="
-                  housingSelected == 7 ? 'housing selectedHouse' : 'housing '
-                "
-                @click="houseSelect(7)"
-              >
-                <div class="container items-center gap-4 flex flex-col">
-                  <div class="text-center">Port Colborne Historical & Marine Museum</div>
-                  <img src="../public/Colborne_Museum.jpg" alt="" />
-                </div>
-              </UCard>
+       
             </div>
           </div>
           <!-- <div class="step2Q flex items-center gap-6" v-if="stepper == 2">
@@ -325,11 +260,11 @@ body {
 } */
 .selectedHouse {
   /* border: 1px solid #00355c; */
-  background-color: #0d64ef29;
+  background-color: #14503f26;
 }
 .selectedHouse:hover {
   /* border: 1px solid #00355c; */
-  background-color: #0d64ef29;
+  background-color: #14503f26;
 }
 .icons {
   border-radius: 50%;
@@ -344,7 +279,7 @@ body {
   width: 200px;
 }
 .activeIcon {
-  background-color: #3b5072;
+  background-color: #14503f;
 }
 /* .step1::after {
   content: "";

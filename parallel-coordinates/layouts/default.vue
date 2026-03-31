@@ -8,7 +8,7 @@
       "
     >
       <div class="p-1 imgCont">
-        <img src="/Colborne_client_logo.png" width="200px" alt="" srcset="" />
+        <img src="/client_logo_white_sschs.png" width="100px" alt="" srcset="" />
       </div>
       <UDivider />
 
@@ -108,7 +108,7 @@ const links = [
   /* padding: 10px; */
 }
 .imgCont img {
-  max-width: 170px;
+  max-width: 80px;
 }
 .lightMode {
   border-right: 1px solid #e3dada;

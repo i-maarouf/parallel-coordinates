@@ -19,7 +19,7 @@
           <div class="p-2 disabled">Help</div>
         </div>
         <div class="logo">
-          <img src="../public/Colborne_client_logo.png" width="200px" alt="" />
+          <img src="../public/client_logo_white_sschs.png" width="100px" alt="" />
         </div>
       </div>
       <HorizontalNavigation />
@@ -31,10 +31,10 @@
 <script setup lang="ts"></script>
 <style scoped>
 .mainHeader {
-  background-color: #3b5072;
+  background-color: #14503f;
 }
 .logo img {
-  width: 120px;
+  width: 80px;
 }
 .link {
   border-radius: 5px;
