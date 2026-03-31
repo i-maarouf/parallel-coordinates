@@ -6,7 +6,6 @@ export default defineNuxtConfig({
   modules: [
     "@pinia/nuxt",
     "@nuxt/ui",
-    "@nuxthub/core",
     "nuxt-tour",
     "@nuxtjs/supabase",
     "nuxt-charts",
