@@ -7,22 +7,8 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/ui",
     "nuxt-tour",
-    "@nuxtjs/supabase",
     "nuxt-charts",
   ],
-  supabase: {
-    // Options
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY,
-    redirect: false,
-    redirectOptions: {
-      login: "/",
-      callback: "/confirm",
-      include: undefined,
-      exclude: [],
-      saveRedirectToCookie: false,
-    },
-  },
 
   // extends: ["@nuxt/ui-pro"],
   colorMode: {
